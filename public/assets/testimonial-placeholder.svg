@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-labelledby="testPhTitle">
+  <title id="testPhTitle">Placeholder photo for a parent testimonial. Real photography pending.</title>
+  <defs>
+    <linearGradient id="testGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F5E6C6"/>
+      <stop offset="100%" stop-color="#FBE3DA"/>
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="100" fill="url(#testGrad)"/>
+  <g opacity="0.6" fill="none" stroke="#8A7A6D" stroke-width="2" stroke-linecap="round">
+    <path d="M55 150c14-30 32-45 45-45s31 15 45 45"/>
+    <circle cx="100" cy="80" r="22"/>
+  </g>
+</svg>
