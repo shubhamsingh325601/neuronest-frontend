@@ -1,68 +1,54 @@
 # Architecture
 
-> Component-driven composition, patterns, and data flow for the NeuroNest frontend.
+> How the NeuroNest frontend is organised. Rules for writing code are in [conventions.md](conventions.md).
 
-## Design Decisions
+## Design decisions
 
 | Decision | Rationale |
 | --- | --- |
-| **Component-Driven Composition** | Reusable atomic UI primitives in `src/components/ui/` (`Button`, `Badge`, `Card`, `SectionHeader`, `Accordion`, `Input`, `Container`) composed into clean page sections in `src/components/sections/`. |
-| **Direct Server Actions + Zod** | Form actions (`src/app/actions.ts`) directly validate using Zod (`src/lib/schemas.ts`) without unnecessary repository layers or fake adapters. |
-| **Server Components by Default** | The landing page is server-rendered for maximum performance and SEO. Interactive elements (`SiteHeader` toggle, `LeadForms`, `SiteFooter` newsletter, `Accordion`) use `"use client"`. |
-| **Tailwind CSS + Design Tokens** | Unified design tokens in `src/app/globals.css` integrated with Tailwind CSS utility classes and exact CSS specifications from `main.css`. |
-| **Content as Data** | All marketing copy lives in `src/lib/content.ts` for clean separation and maintainability. |
+| **Component-driven composition** | Atomic primitives in `src/components/ui/` are composed into page sections in `src/components/sections/`. |
+| **Server Components by default** | The landing site is server-rendered for performance and SEO. Interactivity (header drawer, forms, accordion, motion, splash) uses `"use client"`. |
+| **Content as data** | All marketing copy lives in `src/content/*.ts`; `src/lib/content.ts` re-exports it for backward compatibility. |
+| **Direct Server Actions + Zod** | `src/app/actions.ts` validates with schemas from `src/lib/schemas.ts`. No repository layers or fake adapters. |
+| **CSS custom-property tokens** | Design tokens live in `src/app/globals.css`; see [design-system.md](design-system.md). |
 
-## Directory Structure
+## Directory structure
 
 ```
 src/
 ├── app/
-│   ├── layout.tsx              # Root HTML shell, fonts (Lora, Caveat, Inter), metadata
-│   ├── page.tsx                # Landing page composing header, sections, and footer
-│   ├── globals.css             # Design tokens, Tailwind directives, accurate typography & utility layer
-│   ├── actions.ts              # Direct Server Actions for waitlist & clinician lead submission
-│   ├── not-found.tsx           # 404 handler
-│   └── error.tsx               # Error boundary
+│   ├── layout.tsx              # Root shell: Lora/Caveat/Inter, metadata, SplashScreen, JSON-LD
+│   ├── page.tsx                # Landing page
+│   ├── for-parents/ for-clinicians/ how-it-works/ faq/ privacy/   # one page.tsx each
+│   ├── globals.css             # Tokens, element resets, landing component classes
+│   ├── actions.ts              # Server Actions (parent waitlist, clinician signup, newsletter)
+│   ├── robots.ts  sitemap.ts   # Generated robots.txt / sitemap.xml (currently host-unaware)
+│   ├── not-found.tsx  error.tsx
+│   └── favicon.ico
 ├── components/
-│   ├── ui/                     # Reusable atomic UI primitives
-│   │   ├── button.tsx          # Pill/rounded variants, sizes, icon support
-│   │   ├── badge.tsx           # Pill badges (Understand, Nurture, Empower, Clinical tags)
-│   │   ├── card.tsx            # Base card, feature card, testimonial card
-│   │   ├── section-header.tsx  # Caveat script eyebrow + Lora serif heading
-│   │   ├── accordion.tsx       # Accessible FAQ accordion with smooth open/close
-│   │   ├── input.tsx           # FormField, Input, and Select primitives
-│   │   └── container.tsx       # Responsive max-width container
-│   ├── layout/                 # Layout shell components
-│   │   ├── site-header.tsx     # Brand logo, nav links, mobile drawer, CTA
-│   │   └── site-footer.tsx     # SVG dual-curve wave, navigation, newsletter, copyright
-│   ├── sections/               # Page sections composed using UI primitives
-│   │   ├── hero.tsx            # Hero visual art, pills, quote, action buttons
-│   │   ├── empathy.tsx         # Empathy problem narrative, guiding principle pull-quote
-│   │   ├── feature-grid.tsx    # 4 foundational care cards with colored icon badges
-│   │   ├── how-it-works.tsx    # 4-step workflow + phone mockup + parent testimonial card
-│   │   ├── clinicians.tsx      # Exact Clinicians card (avatar, quote, badges, tags)
-│   │   ├── trust.tsx           # Trust & Ethics compliance checklist card
-│   │   ├── closing.tsx         # Nest branches visual, community items, join CTA card
-│   │   ├── lead-forms.tsx      # Parent waitlist form + Clinician registration form
-│   │   └── faq.tsx             # Interactive FAQ accordion
-│   └── interactive/
-│       ├── phone-mock.tsx      # iOS mockup with status bar, today's focus, tabs
-│       ├── progress-ring.tsx   # SVG animated circle progress indicator (72%)
-│       └── motion-reveal.tsx   # Motion scroll entrance wrapper
-├── lib/
-│   ├── content.ts              # Fully typed site copy & configuration
-│   ├── schemas.ts              # Zod schemas for forms
-│   └── utils.ts                # cn() helper (clsx + tailwind-merge)
-public/
-└── assets/                     # Static images and icons
+│   ├── ui/                     # button, badge, card, section-header, accordion, input, container
+│   ├── layout/                 # site-header, site-footer, splash-screen
+│   ├── sections/               # hero, empathy, feature-grid, how-it-works, clinicians, trust, closing, lead-forms, faq
+│   ├── interactive/            # phone-mock, progress-ring, motion-reveal
+│   └── seo/                    # json-ld
+├── content/                    # home, for-parents, for-clinicians, how-it-works, faq, privacy, site, index (barrel)
+└── lib/                        # content (barrel), schemas, seo, theme, utils
+public/assets/                  # Static images and icons
+docs/                           # This documentation
 ```
 
-## Data Flow
+Pages import `SiteHeader` / `SiteFooter` themselves and render `<main id="main">`; the root layout only provides the shell.
+
+## Data flow (forms)
 
 ```
-LeadForms / Newsletter (Client, useActionState)
-  └─▶ Server Actions (src/app/actions.ts)
-        └─▶ Zod Schema Validation (src/lib/schemas.ts)
-              ├─▶ Error: Return field-level errors & feedback
-              └─▶ Success: Return confirmation state
+LeadForms / Newsletter (client, useActionState)
+  └─▶ Server Action (src/app/actions.ts)
+        └─▶ Zod schema (src/lib/schemas.ts)
+              ├─▶ invalid: FormState with field errors + submitted values
+              └─▶ valid:   forward to Google Sheets webhook (if configured) → FormState success
 ```
+
+## Planned: Admin application
+
+A separate Admin app (`admin.*` host, own root layout, BFF auth) is planned inside this same Next app. Nothing of it exists yet; the design and milestone checklist are in [plans/0001-admin-app.md](plans/0001-admin-app.md). When it lands, update this file with the real route-group layout.
