@@ -7,6 +7,7 @@ import { ErrorState } from "../../../app-shell/states";
 import { describeError } from "../../../lib/describe-error";
 import { formatCount } from "../../../lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../ui/card";
+import { ADMIN_ROUTES } from "../../../navigation/paths";
 import { Skeleton } from "../../../ui/skeleton";
 import type { AdminSummary } from "../api/types";
 import { useAdminSummaryQuery } from "../hooks/use-admin-summary";
@@ -23,12 +24,12 @@ interface CardSpec {
 
 // Invited clinicians leads and is highlighted: pending invitations are what an admin follows up on.
 const CARDS: CardSpec[] = [
-  { key: "invitedClinicians", label: "Invited clinicians", icon: MailPlus, href: "/clinicians?status=INVITED", hint: "Waiting to set up their account", highlight: true },
-  { key: "activeClinicians", label: "Active clinicians", icon: Stethoscope, href: "/clinicians", hint: "Can sign in and see assigned children" },
-  { key: "activeParents", label: "Active parents", icon: UserRound, href: "/users?role=PARENT", hint: "Verified parent accounts" },
+  { key: "invitedClinicians", label: "Invited clinicians", icon: MailPlus, href: `${ADMIN_ROUTES.clinicians}?status=INVITED`, hint: "Waiting to set up their account", highlight: true },
+  { key: "activeClinicians", label: "Active clinicians", icon: Stethoscope, href: ADMIN_ROUTES.clinicians, hint: "Can sign in and see assigned children" },
+  { key: "activeParents", label: "Active parents", icon: UserRound, href: `${ADMIN_ROUTES.users}?role=PARENT`, hint: "Verified parent accounts" },
   { key: "activePlans", label: "Active plans", icon: ClipboardList, hint: "Plans currently in progress" },
-  { key: "childrenWithAssignedClinician", label: "Children with a clinician", icon: Users, href: "/children", hint: "Have at least one clinician" },
-  { key: "childrenWithoutClinician", label: "Children without a clinician", icon: Baby, href: "/children", hint: "Need a clinician assigned" },
+  { key: "childrenWithAssignedClinician", label: "Children with a clinician", icon: Users, href: ADMIN_ROUTES.children, hint: "Have at least one clinician" },
+  { key: "childrenWithoutClinician", label: "Children without a clinician", icon: Baby, href: ADMIN_ROUTES.children, hint: "Need a clinician assigned" },
 ];
 
 function SummaryCard({ spec, value }: { spec: CardSpec; value: number | undefined }) {

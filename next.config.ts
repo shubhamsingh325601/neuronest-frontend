@@ -21,7 +21,5 @@ export default function nextConfig(phase: string): NextConfig {
       NEXT_PUBLIC_ADMIN_DATA_SOURCE: process.env.NEXT_PUBLIC_ADMIN_DATA_SOURCE || "live",
       NEXT_PUBLIC_ADMIN_MOCK_FEATURES: process.env.NEXT_PUBLIC_ADMIN_MOCK_FEATURES || "",
     },
-    // The Admin app is served from admin.localhost in development (plan 0001 §3).
-    allowedDevOrigins: ["admin.localhost"],
   };
 }

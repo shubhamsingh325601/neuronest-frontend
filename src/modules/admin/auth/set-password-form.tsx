@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { Button } from "../ui/button";
 import { Field } from "../ui/field";
 import { FormAlert } from "./form-alert";
+import { ADMIN_ROUTES } from "../navigation/paths";
 import { idleState, type AuthFormState } from "./form-state";
 import { PasswordInput } from "./password-input";
 import { SubmitButton } from "./submit-button";
@@ -26,7 +27,7 @@ export function SetPasswordForm({ action, token, submitLabel, pendingLabel }: Se
       <div className="grid gap-5">
         <FormAlert tone="success">{state.message}</FormAlert>
         <Button asChild size="lg" className="w-full">
-          <Link href="/login">Go to sign in</Link>
+          <Link href={ADMIN_ROUTES.login}>Go to sign in</Link>
         </Button>
       </div>
     );

@@ -75,9 +75,9 @@ describe("loginAction", () => {
 
   it("signs an active admin in: only documented fields, cookies, redirect to a validated next", async () => {
     route({ login: () => Response.json(tokens), me: () => Response.json(profile("ADMIN")) });
-    const { redirect } = await submit({ email: " Admin@NeuroNest.local ", password: "pw", next: "/children" });
+    const { redirect } = await submit({ email: " Admin@NeuroNest.local ", password: "pw", next: "/admin/children" });
 
-    expect(redirect).toBe("/children");
+    expect(redirect).toBe("/admin/children");
     const [, loginInit] = callsTo("/v1/auth/login")[0];
     expect(JSON.parse(loginInit.body)).toEqual({ email: "Admin@NeuroNest.local", password: "pw" });
     expect(loginInit.headers["X-Forwarded-For"]).toBeUndefined(); // limits are per identity; the header is ignored
@@ -86,9 +86,9 @@ describe("loginAction", () => {
     expect(callsTo("/v1/auth/logout")).toHaveLength(0);
   });
 
-  it("falls back to / for an unsafe next", async () => {
+  it("falls back to /admin for an unsafe next", async () => {
     route({ login: () => Response.json(tokens), me: () => Response.json(profile("ADMIN")) });
-    expect((await submit({ email: "a@b.co", password: "pw", next: "//evil.example" })).redirect).toBe("/");
+    expect((await submit({ email: "a@b.co", password: "pw", next: "//evil.example" })).redirect).toBe("/admin");
   });
 
   it.each([["PARENT"], ["CLINICIAN"]])("rejects a %s: revokes the just-issued refresh token and sets no cookies", async (role) => {

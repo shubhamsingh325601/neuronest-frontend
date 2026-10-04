@@ -1,5 +1,7 @@
 // Pure constants so the proxy (which must not pull in server-only code) and the server helpers agree.
-// `__Host-` needs Secure + Path=/ + no Domain, so it is only used in production (dev runs on plain http).
+// Admin shares an origin with the landing site, so the cookies are scoped with `Path=/admin` (see cookies.ts).
+// `__Host-` would force `Path=/` and send the tokens on every landing request, so production uses `__Secure-`
+// (Secure only). Dev runs on plain http, where neither prefix can be set.
 
 export interface CookieNames {
   access: string;
@@ -7,7 +9,7 @@ export interface CookieNames {
 }
 
 export function cookieNames(production: boolean): CookieNames {
-  const prefix = production ? "__Host-" : "";
+  const prefix = production ? "__Secure-" : "";
   return { access: `${prefix}nn_at`, refresh: `${prefix}nn_rt` };
 }
 

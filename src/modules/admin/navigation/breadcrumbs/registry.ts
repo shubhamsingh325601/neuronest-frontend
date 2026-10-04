@@ -1,4 +1,4 @@
-import { normalizeAdminPath } from "../paths";
+import { adminPath } from "../paths";
 
 // One registry for every route (plan 0001 §11). Pages never declare their own breadcrumbs.
 // Patterns use `:param` segments for dynamic routes; dynamic labels (child names, ...) arrive with the
@@ -11,16 +11,16 @@ interface RouteEntry {
 }
 
 export const BREADCRUMB_ROUTES: RouteEntry[] = [
-  { pattern: "/", label: "Dashboard" },
-  { pattern: "/clinicians", label: "Clinicians", parent: "/" },
-  { pattern: "/users", label: "Users", parent: "/" },
-  { pattern: "/children", label: "Children", parent: "/" },
-  { pattern: "/plan-templates", label: "Plan templates", parent: "/" },
-  { pattern: "/system", label: "System", parent: "/" },
-  { pattern: "/help", label: "Help", parent: "/" },
-  { pattern: "/settings", label: "Settings", parent: "/" },
-  { pattern: "/profile", label: "Profile", parent: "/" },
-  { pattern: "/login", label: "Sign in" },
+  { pattern: adminPath(), label: "Dashboard" },
+  { pattern: adminPath("/clinicians"), label: "Clinicians", parent: adminPath() },
+  { pattern: adminPath("/users"), label: "Users", parent: adminPath() },
+  { pattern: adminPath("/children"), label: "Children", parent: adminPath() },
+  { pattern: adminPath("/plan-templates"), label: "Plan templates", parent: adminPath() },
+  { pattern: adminPath("/system"), label: "System", parent: adminPath() },
+  { pattern: adminPath("/help"), label: "Help", parent: adminPath() },
+  { pattern: adminPath("/settings"), label: "Settings", parent: adminPath() },
+  { pattern: adminPath("/profile"), label: "Profile", parent: adminPath() },
+  { pattern: adminPath("/login"), label: "Sign in" },
 ];
 
 export interface Crumb {
@@ -38,7 +38,7 @@ function matches(pattern: string, path: string): boolean {
 
 /** Resolves the breadcrumb trail for a pathname. Returns [] for unregistered paths. */
 export function resolveBreadcrumbs(pathname: string): Crumb[] {
-  const path = normalizeAdminPath(pathname);
+  const path = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
   const segments = path.split("/").filter(Boolean);
   let entry = BREADCRUMB_ROUTES.find((route) => matches(route.pattern, path));
   if (!entry) return [];
@@ -47,7 +47,7 @@ export function resolveBreadcrumbs(pathname: string): Crumb[] {
   let depth = entry.pattern.split("/").filter(Boolean).length;
   let current = true;
   while (entry) {
-    trail.unshift({ label: entry.label, href: `/${segments.slice(0, depth).join("/")}`, current });
+    trail.unshift({ label: entry.label, href: ["", ...segments.slice(0, depth)].join("/"), current });
     const parent: string | undefined = entry.parent;
     entry = parent ? BREADCRUMB_ROUTES.find((route) => route.pattern === parent) : undefined;
     depth = entry ? entry.pattern.split("/").filter(Boolean).length : 0;

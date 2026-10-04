@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useTransition } from "react";
 import { ChevronDown, LogOut, Settings, UserRound } from "lucide-react";
+import { ADMIN_ROUTES } from "../navigation/paths";
 import { logoutAction } from "../auth/actions";
 import type { ShellSession } from "../auth/session-types";
 import {
@@ -48,12 +49,12 @@ export function UserMenu({ session }: { session: ShellSession }) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/profile">
+          <Link href={ADMIN_ROUTES.profile}>
             <UserRound aria-hidden="true" /> Profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/settings">
+          <Link href={ADMIN_ROUTES.settings}>
             <Settings aria-hidden="true" /> Settings
           </Link>
         </DropdownMenuItem>

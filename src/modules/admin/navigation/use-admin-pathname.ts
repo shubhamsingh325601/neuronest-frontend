@@ -1,9 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { normalizeAdminPath } from "./paths";
 
-/** The current path as users see it (no internal `/admin` prefix). */
+/** The current path (`/admin/...`; there is no rewrite, so it is what the address bar shows). */
 export function useAdminPathname(): string {
-  return normalizeAdminPath(usePathname());
+  return usePathname();
 }

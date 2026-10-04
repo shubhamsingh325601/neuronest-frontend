@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { ADMIN_ROUTES } from "../navigation/paths";
 import { ApiError } from "../lib/api-errors";
 import { fetchMe, login, logout } from "./backend-auth";
 import { clearSessionCookies, readSessionCookies, writeSessionCookies } from "./cookies";
@@ -85,5 +86,5 @@ export async function logoutAction(): Promise<void> {
       // The cookie is gone either way; a throttled / failed revoke leaves the token to expire on its own.
     }
   }
-  redirect("/login?reason=signed-out");
+  redirect(`${ADMIN_ROUTES.login}?reason=signed-out`);
 }

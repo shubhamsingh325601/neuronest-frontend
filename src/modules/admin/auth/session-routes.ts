@@ -1,6 +1,7 @@
 import "server-only";
 import { checkCsrf, isCrossSiteNavigation, isPrefetch, problemResponse } from "../bff/guards";
 import { ApiError, ErrorCode, isRefreshDead } from "../lib/api-errors";
+import { ADMIN_ROUTES } from "../navigation/paths";
 import { logout } from "./backend-auth";
 import { clearSessionCookies, readSessionCookies, writeSessionCookies, type CookieStore } from "./cookies";
 import { isLoginReason } from "./login-notices";
@@ -10,7 +11,7 @@ import { refreshAtFromExpiresIn } from "./token-timing";
 
 // Logic for the cookie-changing auth route handlers (`/api/auth/refresh`, `/api/auth/session-ended`), kept out
 // of the route files so it can be unit tested. Redirects use a relative Location: it resolves against the
-// host the browser used, so no origin has to be reconstructed behind the proxy rewrite.
+// origin the browser used, so no origin has to be reconstructed.
 
 export interface RouteContext {
   cookieStore: CookieStore;
@@ -22,13 +23,13 @@ const forbiddenNavigation = () =>
   problemResponse(new ApiError({ status: 403, code: ErrorCode.CsrfRejected, title: "Request rejected", detail: "Cross-site request." }));
 
 function refreshFailureLocation(error: ApiError, next: string): string {
-  if (error.code === ErrorCode.AccountNotActive) return "/login?reason=suspended";
-  if (isRefreshDead(error)) return "/login?reason=expired";
+  if (error.code === ErrorCode.AccountNotActive) return `${ADMIN_ROUTES.login}?reason=suspended`;
+  if (isRefreshDead(error)) return `${ADMIN_ROUTES.login}?reason=expired`;
   // Throttled or backend trouble: the session itself may be fine, so do not clear it or send the user to
   // /login (the proxy would bounce them straight back). A dedicated page offers retry / sign out.
   const params = new URLSearchParams({ reason: error.code === ErrorCode.RateLimited ? "rate-limited" : "unavailable", next });
   if (error.retryAfter !== undefined) params.set("retry", String(error.retryAfter));
-  return `/session-error?${params}`;
+  return `${ADMIN_ROUTES.sessionError}?${params}`;
 }
 
 /** Navigation variant: the console layout redirects here when the access cookie is gone or rejected. */
@@ -38,7 +39,7 @@ export async function handleRefreshNavigation(request: Request, context: RouteCo
 
   const next = safeNextPath(new URL(request.url).searchParams.get("next"));
   const { refreshToken } = readSessionCookies(context.cookieStore);
-  if (!refreshToken) return redirectTo("/login");
+  if (!refreshToken) return redirectTo(ADMIN_ROUTES.login);
 
   const outcome = await refreshTokens(refreshToken);
   if (outcome.ok) {
@@ -90,5 +91,5 @@ export async function handleSessionEnded(request: Request, context: RouteContext
   if (isCrossSiteNavigation(request)) return forbiddenNavigation();
   const reason = new URL(request.url).searchParams.get("reason") ?? "";
   await endSession(context);
-  return redirectTo(isLoginReason(reason) ? `/login?reason=${reason}` : "/login");
+  return redirectTo(isLoginReason(reason) ? `${ADMIN_ROUTES.login}?reason=${reason}` : ADMIN_ROUTES.login);
 }

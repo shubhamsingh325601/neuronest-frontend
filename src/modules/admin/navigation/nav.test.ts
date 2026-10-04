@@ -3,39 +3,40 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { BREADCRUMB_ROUTES, resolveBreadcrumbs } from "./breadcrumbs/registry";
 import { NAV_GROUPS, findActiveLeaf, flattenNav, isNavParent } from "./nav-config";
-import { isPathActive, normalizeAdminPath } from "./paths";
+import { ADMIN_BASE, adminPath, isAdminPath, isPathActive } from "./paths";
 
 const consoleDir = fileURLToPath(new URL("../../../app/(admin)/admin/(console)", import.meta.url));
 
-describe("normalizeAdminPath", () => {
-  it("strips the internal /admin prefix and trailing slashes", () => {
-    expect(normalizeAdminPath("/admin")).toBe("/");
-    expect(normalizeAdminPath("/admin/users")).toBe("/users");
-    expect(normalizeAdminPath("/users/")).toBe("/users");
-    expect(normalizeAdminPath("/")).toBe("/");
+describe("adminPath / isAdminPath", () => {
+  it("builds full admin paths", () => {
+    expect(adminPath()).toBe("/admin");
+    expect(adminPath("/users")).toBe("/admin/users");
+    expect(adminPath("/users?role=PARENT")).toBe("/admin/users?role=PARENT");
   });
 
-  it("does not strip look-alike segments", () => {
-    expect(normalizeAdminPath("/administrators")).toBe("/administrators");
+  it("recognises /admin and anything under it, on whole segments, however it is spelled", () => {
+    for (const path of ["/admin", "/admin/", "/admin/users", "/ADMIN/users", "//admin/users", "/%61dmin/users", "/admin/api/backend/x"])
+      expect(isAdminPath(path), path).toBe(true);
+    for (const path of ["/", "/faq", "/adminx", "/administrators", "/admin-panel", "/x/admin"]) expect(isAdminPath(path), path).toBe(false);
   });
 });
 
 describe("isPathActive", () => {
   it("matches the root exactly only", () => {
-    expect(isPathActive("/", "/")).toBe(true);
-    expect(isPathActive("/", "/users")).toBe(false);
+    expect(isPathActive("/admin", "/admin")).toBe(true);
+    expect(isPathActive("/admin", "/admin/users")).toBe(false);
   });
 
   it("matches by whole segments", () => {
-    expect(isPathActive("/users", "/users")).toBe(true);
-    expect(isPathActive("/users", "/users/42")).toBe(true);
-    expect(isPathActive("/users", "/users-archive")).toBe(false);
-    expect(isPathActive("/users", "/admin/users")).toBe(true);
+    expect(isPathActive("/admin/users", "/admin/users")).toBe(true);
+    expect(isPathActive("/admin/users", "/admin/users/42")).toBe(true);
+    expect(isPathActive("/admin/users", "/admin/users-archive")).toBe(false);
+    expect(isPathActive("/admin/users", "/admin/users/")).toBe(true);
   });
 
   it("keeps sibling children distinct", () => {
-    expect(isPathActive("/clinicians", "/clinicians/abc")).toBe(true);
-    expect(isPathActive("/clinicians/abc", "/clinicians")).toBe(false);
+    expect(isPathActive("/admin/clinicians", "/admin/clinicians/abc")).toBe(true);
+    expect(isPathActive("/admin/clinicians/abc", "/admin/clinicians")).toBe(false);
   });
 });
 
@@ -49,7 +50,7 @@ describe("nav config", () => {
 
   it("gives every nav route a page (no dead links)", () => {
     for (const { href } of leaves) {
-      const dir = href === "/" ? consoleDir : `${consoleDir}/${href.slice(1)}`;
+      const dir = href === ADMIN_BASE ? consoleDir : `${consoleDir}/${href.slice(ADMIN_BASE.length + 1)}`;
       expect(existsSync(`${dir}/page.tsx`), href).toBe(true);
     }
   });
@@ -68,19 +69,19 @@ describe("nav config", () => {
 
 describe("resolveBreadcrumbs", () => {
   it("returns the trail from the root, marking the current page", () => {
-    expect(resolveBreadcrumbs("/clinicians")).toEqual([
-      { label: "Dashboard", href: "/", current: false },
-      { label: "Clinicians", href: "/clinicians", current: true },
+    expect(resolveBreadcrumbs("/admin/clinicians")).toEqual([
+      { label: "Dashboard", href: "/admin", current: false },
+      { label: "Clinicians", href: "/admin/clinicians", current: true },
     ]);
   });
 
-  it("accepts the internal /admin form", () => {
-    expect(resolveBreadcrumbs("/admin/users").map((c) => c.label)).toEqual(["Dashboard", "Users"]);
+  it("ignores a trailing slash", () => {
+    expect(resolveBreadcrumbs("/admin/users/").map((c) => c.label)).toEqual(["Dashboard", "Users"]);
   });
 
   it("is a single crumb at the root and empty for unknown paths", () => {
-    expect(resolveBreadcrumbs("/")).toEqual([{ label: "Dashboard", href: "/", current: true }]);
-    expect(resolveBreadcrumbs("/nope/nothing")).toEqual([]);
+    expect(resolveBreadcrumbs("/admin")).toEqual([{ label: "Dashboard", href: "/admin", current: true }]);
+    expect(resolveBreadcrumbs("/admin/nope/nothing")).toEqual([]);
   });
 
   it("only references registered parents", () => {
@@ -91,13 +92,13 @@ describe("resolveBreadcrumbs", () => {
 
 describe("findActiveLeaf", () => {
   it("picks the most specific leaf", () => {
-    expect(findActiveLeaf("/clinicians")?.id).toBe("clinicians");
-    expect(findActiveLeaf("/clinicians/abc")?.id).toBe("clinicians");
-    expect(findActiveLeaf("/plan-templates/new")?.id).toBe("plan-templates");
+    expect(findActiveLeaf("/admin/clinicians")?.id).toBe("clinicians");
+    expect(findActiveLeaf("/admin/clinicians/abc")?.id).toBe("clinicians");
+    expect(findActiveLeaf("/admin/plan-templates/new")?.id).toBe("plan-templates");
   });
 
   it("returns nothing for paths outside the nav", () => {
-    expect(findActiveLeaf("/profile")).toBeUndefined();
-    expect(findActiveLeaf("/")?.id).toBe("dashboard");
+    expect(findActiveLeaf("/admin/profile")).toBeUndefined();
+    expect(findActiveLeaf("/admin")?.id).toBe("dashboard");
   });
 });

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthLayout } from "@/modules/admin/auth/auth-layout";
+import { ADMIN_ROUTES } from "@/modules/admin/navigation/paths";
 import { LinkProblem } from "@/modules/admin/auth/link-problem";
 import { resetPasswordAction } from "@/modules/admin/auth/recovery-actions";
 import { SetPasswordForm } from "@/modules/admin/auth/set-password-form";
@@ -15,7 +16,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
       {value ? (
         <SetPasswordForm action={resetPasswordAction} token={value} submitLabel="Change password" pendingLabel="Changing…" />
       ) : (
-        <LinkProblem message="This reset link is incomplete. Request a new one." actionHref="/forgot-password" actionLabel="Request a new link" />
+        <LinkProblem message="This reset link is incomplete. Request a new one." actionHref={ADMIN_ROUTES.forgotPassword} actionLabel="Request a new link" />
       )}
     </AuthLayout>
   );

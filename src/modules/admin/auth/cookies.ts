@@ -1,9 +1,10 @@
 import "server-only";
 import { getAdminEnv } from "../config/env";
+import { ADMIN_BASE } from "../navigation/paths";
 import { REFRESH_COOKIE_MAX_AGE, cookieNames } from "./cookie-names";
 import type { SessionTokens } from "./backend-auth";
 
-// httpOnly, host-only (no Domain), SameSite=Lax, Path=/. `__Host-` names + Secure in production.
+// httpOnly, host-only (no Domain), SameSite=Lax, Path=/admin (never sent with landing requests). `__Secure-` names + Secure in production.
 // Browser JS never sees a token (plan 0001 §16).
 
 /** The subset of Next's cookie store these helpers need (readable in tests without Next). */
@@ -14,7 +15,7 @@ export interface CookieStore {
 }
 
 function baseOptions(production: boolean) {
-  return { httpOnly: true, secure: production, sameSite: "lax" as const, path: "/" };
+  return { httpOnly: true, secure: production, sameSite: "lax" as const, path: ADMIN_BASE };
 }
 
 export function readSessionCookies(store: CookieStore, production = getAdminEnv().production) {
@@ -35,7 +36,7 @@ export function writeSessionCookies(
 
 export function clearSessionCookies(store: CookieStore, production = getAdminEnv().production) {
   const names = cookieNames(production);
-  // `delete` alone would drop the attributes browsers match on (`__Host-` needs Secure + Path=/).
+  // `delete` alone would drop the attributes browsers match on (Path must equal the one the cookie was set with).
   for (const name of [names.access, names.refresh]) {
     store.set(name, "", { ...baseOptions(production), maxAge: 0 });
   }

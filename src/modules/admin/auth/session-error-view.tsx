@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ADMIN_ROUTES } from "../navigation/paths";
 import { Button } from "../ui/button";
 import { FormAlert } from "./form-alert";
 import { rateLimitedMessage } from "./error-messages";
@@ -41,12 +42,11 @@ export function SessionErrorView({ reason, retryAfter, next }: SessionErrorViewP
         </Button>
       ) : (
         <Button asChild size="lg" className="w-full">
-          <a href={`/api/auth/refresh?next=${encodeURIComponent(next)}`}>Try again</a>
+          <a href={`${ADMIN_ROUTES.authRefresh}?next=${encodeURIComponent(next)}`}>Try again</a>
         </Button>
       )}
       <Button asChild size="lg" variant="outline" className="w-full">
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- route handler, needs a real navigation */}
-        <a href="/api/auth/session-ended?reason=signed-out">Sign out</a>
+        <a href={`${ADMIN_ROUTES.sessionEnded}?reason=signed-out`}>Sign out</a>
       </Button>
     </div>
   );

@@ -3,7 +3,7 @@ import { isAllowed } from "./allowlist";
 import { handleBackendRequest } from "./handler";
 
 const fetchMock = vi.fn();
-const ORIGIN = "http://admin.localhost:3001";
+const ORIGIN = "http://localhost:3001";
 
 beforeEach(() => {
   vi.stubEnv("API_BASE_URL", "http://backend.test");
@@ -23,7 +23,7 @@ const ctx = { accessToken: "access-jwt" };
 function req(method: string, path: string, init: { headers?: Record<string, string>; body?: string } = {}) {
   return new Request(`${ORIGIN}/api/backend/${path}`, {
     method,
-    headers: { host: "admin.localhost:3001", "x-nn-admin": "1", ...init.headers },
+    headers: { host: "localhost:3001", "x-nn-admin": "1", ...init.headers },
     body: init.body,
   });
 }
@@ -88,7 +88,7 @@ describe("handleBackendRequest", () => {
   });
 
   it("rejects calls without the CSRF header", async () => {
-    const request = new Request(`${ORIGIN}/api/backend/users`, { headers: { host: "admin.localhost:3001" } });
+    const request = new Request(`${ORIGIN}/admin/api/backend/users`, { headers: { host: "localhost:3001" } });
     const res = await handleBackendRequest(request, ["users"], ctx);
     expect(res.status).toBe(403);
     expect((await res.json()).code).toBe("CSRF_REJECTED");
