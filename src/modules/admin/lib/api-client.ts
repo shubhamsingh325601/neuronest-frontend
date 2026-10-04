@@ -1,4 +1,5 @@
 import { refreshSession, type RefreshOutcome } from "../auth/browser-refresh";
+import { ADMIN_ROUTES } from "../navigation/paths";
 import { CSRF_HEADER, CSRF_VALUE } from "../auth/request-headers";
 import { ErrorCode, backendUnreachable, isAccessTokenRejected, parseApiError } from "./api-errors";
 import { createHttpClient, type HttpClient, type Transport } from "./http";
@@ -27,7 +28,7 @@ export function createApiClient(deps: ApiClientDeps = {}): HttpClient {
   const transport: Transport = async (request) => {
     const send = async () => {
       try {
-        return await doFetch(`/api/backend/${request.path}${request.search}`, {
+        return await doFetch(`${ADMIN_ROUTES.backendBase}/${request.path}${request.search}`, {
           method: request.method,
           headers: {
             Accept: "application/json, application/problem+json",
@@ -50,7 +51,7 @@ export function createApiClient(deps: ApiClientDeps = {}): HttpClient {
 
     const error = await parseApiError(response.clone());
     if (error.code === ErrorCode.AccountNotActive) {
-      navigate("/login?reason=suspended");
+      navigate(`${ADMIN_ROUTES.login}?reason=suspended`);
       return response;
     }
     if (!isAccessTokenRejected(error)) return response;

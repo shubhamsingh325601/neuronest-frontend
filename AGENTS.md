@@ -42,7 +42,7 @@ Open a doc only when the task matches its row. Do not read docs "just in case", 
 | Code style, RSC rules, styling and form conventions, commits | `docs/conventions.md` |
 | Landing UI, design tokens, fonts, `src/components/ui` | `docs/design-system.md` |
 | `src/content`, Zod schemas, Server Actions, env vars | `docs/data-layer.md` |
-| Anything Admin (`admin.*` host, `proxy.ts`, `src/modules/admin`, `src/mocks/admin`, admin auth) | `docs/plans/0001-admin-app.md` |
+| Anything Admin (served at `/admin` on the same origin; `proxy.ts`, `src/modules/admin`, `src/mocks/admin`, admin auth) | `docs/plans/0001-admin-app.md`; URL, proxy and cookie rules in `docs/plans/0002-admin-path-routing.md` |
 
 Index of all docs: `docs/README.md`.
 

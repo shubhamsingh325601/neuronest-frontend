@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { ApiError, ErrorCode, isAccessTokenRejected } from "../lib/api-errors";
 import { fetchMe, type UserProfile } from "./backend-auth";
 import { readSessionCookies } from "./cookies";
+import { ADMIN_ROUTES } from "../navigation/paths";
 import { NEXT_PATH_HEADER } from "./request-headers";
 import { safeNextPath } from "./safe-next";
 import type { ShellSession } from "./session-types";
@@ -52,7 +53,7 @@ export interface ActiveSession {
   refreshAt: number | null;
 }
 
-/** The page the visitor asked for, forwarded by the proxy (browser URL, not the internal `/admin/...` one). */
+/** The page the visitor asked for, forwarded by the proxy (the browser URL). */
 async function requestedPath(): Promise<string> {
   const value = (await headers()).get(NEXT_PATH_HEADER);
   return safeNextPath(value);
@@ -75,13 +76,13 @@ export async function requireAdmin(): Promise<ActiveSession> {
       // The proxy already sends cookie-less visitors to /login, so reaching this means a stale or unusable
       // access cookie with no refresh cookie. `reason` stops the proxy from bouncing /login straight back.
       const path = await requestedPath();
-      redirect(path === "/" ? "/login?reason=expired" : `/login?reason=expired&${nextQuery(path)}`);
+      redirect(path === ADMIN_ROUTES.home ? `${ADMIN_ROUTES.login}?reason=expired` : `${ADMIN_ROUTES.login}?reason=expired&${nextQuery(path)}`);
     }
     case "refresh":
-      redirect(`/api/auth/refresh?${nextQuery(await requestedPath())}`);
+      redirect(`${ADMIN_ROUTES.authRefresh}?${nextQuery(await requestedPath())}`);
     case "suspended":
-      redirect("/api/auth/session-ended?reason=suspended");
+      redirect(`${ADMIN_ROUTES.sessionEnded}?reason=suspended`);
     case "forbidden":
-      redirect("/api/auth/session-ended?reason=forbidden");
+      redirect(`${ADMIN_ROUTES.sessionEnded}?reason=forbidden`);
   }
 }

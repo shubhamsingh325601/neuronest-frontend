@@ -1,14 +1,53 @@
-// The Admin app is served from `/admin/*` internally, but users see paths without the prefix
-// (proxy rewrite, plan 0001 §3). `usePathname()` may return either form depending on how the page was
-// reached, so everything that compares paths normalises first.
-export function normalizeAdminPath(pathname: string): string {
-  const stripped = pathname === "/admin" ? "/" : pathname.startsWith("/admin/") ? pathname.slice("/admin".length) : pathname;
-  return stripped.length > 1 && stripped.endsWith("/") ? stripped.slice(0, -1) : stripped;
+// The Admin app is served at `/admin` on the same origin as the landing site (plan 0002). Every admin path
+// in code is the full browser path, built here, so what is in the address bar is what is in the code.
+
+export const ADMIN_BASE = "/admin";
+
+/** `adminPath("/users")` -> `/admin/users`; `adminPath()` -> `/admin`. Query strings pass through. */
+export function adminPath(sub = "/"): string {
+  return sub === "/" ? ADMIN_BASE : `${ADMIN_BASE}${sub}`;
 }
 
-/** Exact match for the root, segment-prefix match for everything else (`/users` matches `/users/42`). */
+export const ADMIN_ROUTES = {
+  home: adminPath(),
+  clinicians: adminPath("/clinicians"),
+  users: adminPath("/users"),
+  children: adminPath("/children"),
+  planTemplates: adminPath("/plan-templates"),
+  system: adminPath("/system"),
+  profile: adminPath("/profile"),
+  settings: adminPath("/settings"),
+  login: adminPath("/login"),
+  forgotPassword: adminPath("/forgot-password"),
+  resetPassword: adminPath("/reset-password"),
+  completeAccountSetup: adminPath("/complete-account-setup"),
+  sessionError: adminPath("/session-error"),
+  authRefresh: adminPath("/api/auth/refresh"),
+  sessionEnded: adminPath("/api/auth/session-ended"),
+  backendBase: adminPath("/api/backend"),
+} as const;
+
+/** Decodes, collapses repeated slashes and lower-cases a path for *matching only* (`/%61dmin`, `//admin`, `/ADMIN`). */
+export function normalizeForMatch(pathname: string): string {
+  let decoded = pathname;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    // Malformed escape: match on the raw path.
+  }
+  const collapsed = decoded.replace(/\/{2,}/g, "/").toLowerCase();
+  return collapsed.length > 1 ? collapsed.replace(/\/$/, "") : collapsed;
+}
+
+/** True for `/admin` and anything under it (whole segments: `/adminx` is not admin). */
+export function isAdminPath(pathname: string): boolean {
+  const path = normalizeForMatch(pathname);
+  return path === ADMIN_BASE || path.startsWith(`${ADMIN_BASE}/`);
+}
+
+/** Exact match for the dashboard root, segment-prefix match for everything else (`/admin/users` matches `/admin/users/42`). */
 export function isPathActive(href: string, pathname: string): boolean {
-  const path = normalizeAdminPath(pathname);
-  if (href === "/") return path === "/";
+  const path = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  if (href === ADMIN_BASE) return path === ADMIN_BASE;
   return path === href || path.startsWith(`${href}/`);
 }

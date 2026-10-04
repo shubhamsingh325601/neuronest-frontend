@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthLayout } from "@/modules/admin/auth/auth-layout";
+import { ADMIN_ROUTES } from "@/modules/admin/navigation/paths";
 import { LinkProblem } from "@/modules/admin/auth/link-problem";
 import { completeAccountSetupAction } from "@/modules/admin/auth/recovery-actions";
 import { SetPasswordForm } from "@/modules/admin/auth/set-password-form";
@@ -15,7 +16,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
       {value ? (
         <SetPasswordForm action={completeAccountSetupAction} token={value} submitLabel="Set password" pendingLabel="Saving…" />
       ) : (
-        <LinkProblem message="This setup link is incomplete. Ask an administrator to resend your invitation." actionHref="/login" actionLabel="Go to sign in" />
+        <LinkProblem message="This setup link is incomplete. Ask an administrator to resend your invitation." actionHref={ADMIN_ROUTES.login} actionLabel="Go to sign in" />
       )}
     </AuthLayout>
   );

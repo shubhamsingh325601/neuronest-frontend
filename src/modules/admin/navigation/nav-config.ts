@@ -1,4 +1,4 @@
-import { isPathActive } from "./paths";
+import { adminPath, isPathActive } from "./paths";
 import {
   Activity,
   Baby,
@@ -51,24 +51,24 @@ export const NAV_GROUPS: NavGroup[] = [
     id: "main",
     label: "Main menu",
     items: [
-      { id: "dashboard", label: "Dashboard", href: "/", icon: LayoutDashboard, status: "live" },
-      { id: "clinicians", label: "Clinicians", href: "/clinicians", icon: Stethoscope, status: "placeholder" },
-      { id: "users", label: "Users", href: "/users", icon: Users, status: "placeholder" },
-      { id: "children", label: "Children", href: "/children", icon: Baby, status: "placeholder" },
-      { id: "plan-templates", label: "Plan templates", href: "/plan-templates", icon: ClipboardList, status: "placeholder" },
+      { id: "dashboard", label: "Dashboard", href: adminPath(), icon: LayoutDashboard, status: "live" },
+      { id: "clinicians", label: "Clinicians", href: adminPath("/clinicians"), icon: Stethoscope, status: "placeholder" },
+      { id: "users", label: "Users", href: adminPath("/users"), icon: Users, status: "placeholder" },
+      { id: "children", label: "Children", href: adminPath("/children"), icon: Baby, status: "placeholder" },
+      { id: "plan-templates", label: "Plan templates", href: adminPath("/plan-templates"), icon: ClipboardList, status: "placeholder" },
     ],
   },
   {
     id: "operations",
     label: "Operations",
-    items: [{ id: "system", label: "System", href: "/system", icon: Activity, status: "live" }],
+    items: [{ id: "system", label: "System", href: adminPath("/system"), icon: Activity, status: "live" }],
   },
   {
     id: "support",
     label: "Help & settings",
     items: [
-      { id: "help", label: "Help", href: "/help", icon: LifeBuoy, status: "placeholder" },
-      { id: "settings", label: "Settings", href: "/settings", icon: Settings, status: "placeholder" },
+      { id: "help", label: "Help", href: adminPath("/help"), icon: LifeBuoy, status: "placeholder" },
+      { id: "settings", label: "Settings", href: adminPath("/settings"), icon: Settings, status: "placeholder" },
     ],
   },
 ];

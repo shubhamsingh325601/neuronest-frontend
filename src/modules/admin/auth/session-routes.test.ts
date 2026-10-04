@@ -6,7 +6,7 @@ import { handleRefreshNavigation, handleRefreshPost, handleSessionEnded } from "
 
 const fetchMock = vi.fn();
 const names = cookieNames(false);
-const ORIGIN = "http://admin.localhost:3001";
+const ORIGIN = "http://localhost:3001";
 
 function store(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial));
@@ -42,7 +42,7 @@ afterEach(() => {
 });
 
 const nav = (query = "", headers: Record<string, string> = {}) => new Request(`${ORIGIN}/api/auth/refresh${query}`, { headers });
-const post = (headers: Record<string, string> = { "x-nn-admin": "1", origin: ORIGIN, host: "admin.localhost:3001" }) =>
+const post = (headers: Record<string, string> = { "x-nn-admin": "1", origin: ORIGIN, host: "localhost:3001" }) =>
   new Request(`${ORIGIN}/api/auth/refresh`, { method: "POST", headers });
 
 describe("GET /api/auth/refresh (navigation)", () => {
@@ -50,9 +50,9 @@ describe("GET /api/auth/refresh (navigation)", () => {
     fetchMock.mockResolvedValueOnce(tokensResponse(1));
     const { store: cookieStore, sets } = store({ [names.refresh]: "rt-0" });
 
-    const res = await handleRefreshNavigation(nav("?next=%2Fusers"), { cookieStore });
+    const res = await handleRefreshNavigation(nav("?next=%2Fadmin%2Fusers"), { cookieStore });
     expect(res.status).toBe(307);
-    expect(res.headers.get("location")).toBe("/users");
+    expect(res.headers.get("location")).toBe("/admin/users");
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("http://backend.test/v1/auth/refresh");
@@ -61,7 +61,7 @@ describe("GET /api/auth/refresh (navigation)", () => {
 
     const access = sets.find((c) => c.name === names.access)!;
     const refresh = sets.find((c) => c.name === names.refresh)!;
-    expect(access).toMatchObject({ value: "at-1", options: { httpOnly: true, sameSite: "lax", path: "/", maxAge: 900 } });
+    expect(access).toMatchObject({ value: "at-1", options: { httpOnly: true, sameSite: "lax", path: "/admin", maxAge: 900 } });
     expect(refresh.value).toBe("rt-1");
     expect(access.options.domain).toBeUndefined();
   });
@@ -70,7 +70,7 @@ describe("GET /api/auth/refresh (navigation)", () => {
     fetchMock.mockResolvedValueOnce(tokensResponse(1));
     const { store: cookieStore } = store({ [names.refresh]: "rt-0" });
     const res = await handleRefreshNavigation(nav("?next=https%3A%2F%2Fevil.example"), { cookieStore });
-    expect(res.headers.get("location")).toBe("/");
+    expect(res.headers.get("location")).toBe("/admin");
   });
 
   it("never rotates on a prefetch", async () => {
@@ -93,15 +93,15 @@ describe("GET /api/auth/refresh (navigation)", () => {
   it("goes to sign-in without calling the backend when there is no refresh cookie", async () => {
     const { store: cookieStore } = store();
     const res = await handleRefreshNavigation(nav(), { cookieStore });
-    expect(res.headers.get("location")).toBe("/login");
+    expect(res.headers.get("location")).toBe("/admin/login");
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("clears the cookies and shows 'expired' when the refresh token is dead", async () => {
     fetchMock.mockResolvedValueOnce(problem(401, "INVALID_REFRESH_TOKEN"));
     const { store: cookieStore, sets } = store({ [names.access]: "old", [names.refresh]: "rt-0" });
-    const res = await handleRefreshNavigation(nav("?next=%2Fusers"), { cookieStore });
-    expect(res.headers.get("location")).toBe("/login?reason=expired");
+    const res = await handleRefreshNavigation(nav("?next=%2Fadmin%2Fusers"), { cookieStore });
+    expect(res.headers.get("location")).toBe("/admin/login?reason=expired");
     expect(sets.map((c) => [c.name, c.value, c.options.maxAge])).toEqual([
       [names.access, "", 0],
       [names.refresh, "", 0],
@@ -112,7 +112,7 @@ describe("GET /api/auth/refresh (navigation)", () => {
     fetchMock.mockResolvedValueOnce(problem(400, "VALIDATION_ERROR"));
     const { store: cookieStore, sets } = store({ [names.refresh]: "truncated" });
     const res = await handleRefreshNavigation(nav(), { cookieStore });
-    expect(res.headers.get("location")).toBe("/login?reason=expired");
+    expect(res.headers.get("location")).toBe("/admin/login?reason=expired");
     expect(sets).toHaveLength(2);
   });
 
@@ -120,15 +120,15 @@ describe("GET /api/auth/refresh (navigation)", () => {
     fetchMock.mockResolvedValueOnce(problem(403, "ACCOUNT_NOT_ACTIVE"));
     const { store: cookieStore, sets } = store({ [names.refresh]: "rt-0" });
     const res = await handleRefreshNavigation(nav(), { cookieStore });
-    expect(res.headers.get("location")).toBe("/login?reason=suspended");
+    expect(res.headers.get("location")).toBe("/admin/login?reason=suspended");
     expect(sets).toHaveLength(2);
   });
 
   it("keeps the session and shows the retry page on 429 (never /login, which would loop)", async () => {
     fetchMock.mockResolvedValueOnce(problem(429, "RATE_LIMITED", { "retry-after": "37" }));
     const { store: cookieStore, sets } = store({ [names.refresh]: "rt-0" });
-    const res = await handleRefreshNavigation(nav("?next=%2Fchildren"), { cookieStore });
-    expect(res.headers.get("location")).toBe("/session-error?reason=rate-limited&next=%2Fchildren&retry=37");
+    const res = await handleRefreshNavigation(nav("?next=%2Fadmin%2Fchildren"), { cookieStore });
+    expect(res.headers.get("location")).toBe("/admin/session-error?reason=rate-limited&next=%2Fadmin%2Fchildren&retry=37");
     expect(sets).toHaveLength(0);
   });
 
@@ -136,7 +136,7 @@ describe("GET /api/auth/refresh (navigation)", () => {
     fetchMock.mockRejectedValueOnce(new TypeError("fetch failed"));
     const { store: cookieStore, sets } = store({ [names.refresh]: "rt-0" });
     const res = await handleRefreshNavigation(nav(), { cookieStore });
-    expect(res.headers.get("location")).toMatch(/^\/session-error\?reason=unavailable/);
+    expect(res.headers.get("location")).toMatch(/^\/admin\/session-error\?reason=unavailable/);
     expect(sets).toHaveLength(0);
   });
 
@@ -171,7 +171,7 @@ describe("POST /api/auth/refresh (SessionKeeper)", () => {
   it("requires the CSRF header and a same-origin Origin", async () => {
     const { store: cookieStore } = store({ [names.refresh]: "rt-0" });
     expect((await handleRefreshPost(post({}), { cookieStore })).status).toBe(403);
-    const foreign = post({ "x-nn-admin": "1", origin: "https://evil.example", host: "admin.localhost:3001" });
+    const foreign = post({ "x-nn-admin": "1", origin: "https://evil.example", host: "localhost:3001" });
     expect((await handleRefreshPost(foreign, { cookieStore })).status).toBe(403);
     expect(fetchMock).not.toHaveBeenCalled();
   });
@@ -204,7 +204,7 @@ describe("GET /api/auth/session-ended", () => {
     fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }));
     const { store: cookieStore, sets } = store({ [names.access]: "a", [names.refresh]: "rt-0" });
     const res = await handleSessionEnded(new Request(`${ORIGIN}/api/auth/session-ended?reason=suspended`), { cookieStore });
-    expect(res.headers.get("location")).toBe("/login?reason=suspended");
+    expect(res.headers.get("location")).toBe("/admin/login?reason=suspended");
     expect(sets).toHaveLength(2);
     expect(fetchMock.mock.calls[0][0]).toBe("http://backend.test/v1/auth/logout");
   });
@@ -213,7 +213,7 @@ describe("GET /api/auth/session-ended", () => {
     fetchMock.mockResolvedValueOnce(problem(429, "RATE_LIMITED"));
     const { store: cookieStore, sets } = store({ [names.refresh]: "rt-0" });
     const res = await handleSessionEnded(new Request(`${ORIGIN}/api/auth/session-ended?reason=%3Cscript%3E`), { cookieStore });
-    expect(res.headers.get("location")).toBe("/login");
+    expect(res.headers.get("location")).toBe("/admin/login");
     expect(sets).toHaveLength(2);
   });
 

@@ -26,15 +26,15 @@ src/
 │   │   └── not-found.tsx  error.tsx
 │   ├── (admin)/                # Admin app. A second ROOT layout: no landing CSS, fonts, JSON-LD or splash
 │   │   ├── layout.tsx          # Bare <html>/<body>, noindex metadata
-│   │   └── admin/              # Internal URL prefix; invisible on the admin host (see Host routing)
+│   │   └── admin/              # The real URL prefix: /admin (see Admin at /admin)
 │   │       ├── (auth)/         # login, forgot-password, reset-password, complete-account-setup, session-error
 │   │       ├── (console)/      # Shell layout (force-dynamic, requireAdmin()) + one thin page per nav route,
 │   │       │                   # loading / error / not-found / [...slug] rendered inside the shell
 │   │       └── api/            # BFF: backend/[...path] (allowlisted proxy), auth/refresh, auth/session-ended
 │   ├── actions.ts              # Server Actions (parent waitlist, clinician signup, newsletter)
-│   ├── robots.ts  sitemap.ts   # Public-host robots.txt / sitemap.xml (admin host is handled in proxy.ts)
+│   ├── robots.ts  sitemap.ts   # robots.txt (Disallow: /admin) / sitemap.xml (public URLs only)
 │   └── favicon.ico
-├── proxy.ts                    # Host routing (Next 16 "proxy", formerly middleware)
+├── proxy.ts                    # /admin only: headers + optimistic session gate (Next 16 "proxy", formerly middleware)
 ├── components/
 │   ├── ui/                     # button, badge, card, section-header, accordion, input, container
 │   ├── layout/                 # site-header, site-footer, splash-screen
@@ -42,7 +42,7 @@ src/
 │   ├── interactive/            # phone-mock, progress-ring, motion-reveal
 │   └── seo/                    # json-ld
 ├── content/                    # home, for-parents, for-clinicians, how-it-works, faq, privacy, site, index (barrel)
-├── lib/                        # content (barrel), schemas, seo, theme, utils, host (pure host/path routing logic)
+├── lib/                        # content (barrel), schemas, seo, theme, utils, 
 └── modules/admin/              # Admin code; must not import landing code
     ├── styles/admin.css        # Admin tokens (light/dark), @theme inline; Tailwind scan limited to admin code
     ├── theme/                  # ThemeProvider, pre-paint script, contrast test
@@ -75,25 +75,26 @@ LeadForms / Newsletter (client, useActionState)
               └─▶ valid:   forward to Google Sheets webhook (if configured) → FormState success
 ```
 
-## Host routing and the Admin app
+## Admin at `/admin` (same origin)
 
-One Next app serves two hosts. `src/proxy.ts` (decisions in `src/lib/host.ts`, unit tested) classifies the `Host` header:
+The Admin app is served at `/admin` on the same origin as the landing site (decision 2026-10-05: no second domain on the free Vercel plan; plan [0002-admin-path-routing.md](plans/0002-admin-path-routing.md)). There is no host routing and no rewrite: `src/app/(admin)/admin/...` is the real URL. The landing's static `/` and `[...slug]` routes never see `/admin/*` (a static segment outranks the catch-all), and `/adminx` or `/ADMIN` are not admin routes.
 
-- **Admin host** (`admin.*`, or any name in `ADMIN_HOSTS`): every path `p` is rewritten to `/admin${p}`, so `admin.localhost:3001/` renders `(admin)/admin/page.tsx`. `/robots.txt` is `Disallow: /`, `/sitemap.xml` is 404, every response carries `X-Robots-Tag: noindex, nofollow`, and a literal `/admin/*` request is 404. Paths outside the auth allowlist also pass the optimistic session gate (cookie presence only; see [data-layer.md](data-layer.md)).
-- **Public host**: `/admin`, `/admin/*` and `/api/admin/*` are 404; everything else is untouched.
+`src/proxy.ts` returns immediately for every path outside `/admin`, so landing responses are untouched. For `/admin/*` it adds `X-Robots-Tag: noindex, nofollow`, `Cache-Control: no-store`, `X-Frame-Options: DENY` + `frame-ancestors 'none'`, `nosniff` and `Referrer-Policy: same-origin`, then runs the optimistic session gate (cookie presence only; see [data-layer.md](data-layer.md)) and forwards the requested path in `x-nn-path`. Matching is done on a decoded, slash-collapsed, lower-cased path (`/%61dmin`, `//admin`). `robots.ts` disallows `/admin`; `sitemap.ts` never lists it.
+
+**URLs in code:** every admin path is the full browser path, built from `modules/admin/navigation/paths.ts` (`adminPath()`, `ADMIN_ROUTES`). Never hand-write `/login` or `/users`: a test (`literal-paths.test.ts`) fails on a root-relative literal outside `/admin`.
 
 Import boundaries are enforced by ESLint (`no-restricted-imports` in `eslint.config.mjs`): public code (`(public)`, `components`, `content`, `lib`) cannot import `@/modules/admin`, `@/mocks` or `@/app/(admin)`; admin code cannot import `@/components`, `@/content`, `@/app/(public)`, `@/app/actions` or any `@/lib/*` except `@/lib/utils`. The rule matches `@/` alias imports (the repo convention), not relative paths.
 
 CSS isolation: both stylesheets use `@import "tailwindcss" source(none)` plus explicit `@source` roots (landing: `(public)`, `components`, `content`, `lib`; admin: `modules/admin`, `app/(admin)`, `mocks`). Without this Tailwind's automatic scanning generated admin utilities into the landing CSS. Keep the two lists disjoint when adding folders. The admin `next/font` Inter uses a different variable name and `fallback` from the landing's so Turbopack does not merge the two roots' font CSS.
 
-Dev: `npm run dev` serves on port **3001**; open `http://admin.localhost:3001` for the Admin app (`allowedDevOrigins` allows that origin). `npm run test` runs Vitest (node environment). `node scripts/measure-landing-js.mjs --check docs/baselines/landing-js.json` (after `npm run build`) compares the landing's client JS with the baseline.
+Dev: `npm run dev` serves on port **3001**; the landing is `http://localhost:3001` and the Admin app `http://localhost:3001/admin`. `npm run test` runs Vitest (node environment). `node scripts/measure-landing-js.mjs --check docs/baselines/landing-js.json` (after `npm run build`) compares the landing's client JS with the baseline.
 
 Design and milestone checklist: [plans/0001-admin-app.md](plans/0001-admin-app.md).
 
 ## Admin shell
 
 - **Responsive:** >= lg sidebar expanded or user-collapsed (persisted in `localStorage`, key `nn-admin-sidebar`); md to lg a fixed icon rail; < md an off-canvas drawer (Radix Dialog, focus-trapped). Width and labels are driven by CSS on `html[data-sidebar]`, set by a pre-paint script, so reloads never flash the wrong state. Zustand mirrors the flag for tooltips and the toggle.
-- **Paths:** behind the proxy rewrite `usePathname()` can differ from the browser URL and prerendered pages risk hydration mismatches, so the console layout is `force-dynamic` and all path comparisons go through `normalizeAdminPath` (strips the internal `/admin`). Unknown URLs render the console 404 inside the shell but with status 200 (the shell streams first); the admin host is noindex everywhere, so this is harmless.
+- **Paths:** `usePathname()` is the real `/admin/...` path (no rewrite). The console layout is `force-dynamic` because it reads cookies; active-state comparisons use full paths via `isPathActive`. Unknown URLs render the console 404 inside the shell but with status 200 (the shell streams first); Admin is noindex everywhere, so this is harmless, and anonymous visitors are redirected to login before they see it.
 - **Adding a page:** add a leaf to `navigation/nav-config.ts`, a pattern to `navigation/breadcrumbs/registry.ts` and a thin `page.tsx` under `(console)`; a unit test fails if a nav route has no page or no breadcrumb.
 - **Session:** `(console)/layout.tsx` awaits `requireAdmin()` (the real guard; see [data-layer.md](data-layer.md) "Admin auth") and mounts `SessionKeeper`. A redirect in the layout does not stop a page component rendering in parallel, so pages must not rely on it to protect data; data goes through the BFF, which has no cookie-less path.
 - **Temporary:** the search dialog and the notification sheet are placeholders; `MockDataChip` lists them (`config/shell-stub.ts`). M5 replaces them.

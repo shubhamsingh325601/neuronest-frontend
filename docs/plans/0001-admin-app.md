@@ -1,7 +1,20 @@
 # Plan 0001 — Admin Application
 
-> **Status: APPROVED — M0 to M4 implemented, awaiting review; M5 not started.** Work one milestone at a time and stop after each for review. Tick boxes as work lands: `[ ]` not started · `[x]` done.
+> **Status: APPROVED — M0 to M4 implemented (host-based routing); **M4.5 (Admin at `/admin` on the same origin) implemented, live re-verification pending; M5 not started.** Work one milestone at a time and stop after each for review. Tick boxes as work lands: `[ ]` not started · `[x]` done.
 > Scope: the Admin app only. Parent and Clinician apps are out of scope. The landing site must not change behaviour.
+
+## Decision 2026-10-05 — Admin is served at `/admin`, not on an `admin.` subdomain
+
+**Why:** the frontend is on Vercel's free plan and the owner cannot buy or attach a second domain, so `admin.<domain>` is not available. (A second free `*.vercel.app` project was considered and rejected by the owner.)
+
+**What changes:**
+- Production and dev URLs become `<site>/admin`, `<site>/admin/login`, `<site>/admin/clinicians`, ... Locally: `http://localhost:3001/admin`. There is no admin host any more.
+- The host classification, the admin rewrite (`p` → `/admin${p}`), the "literal `/admin/*` is 404" rule and the "public host `/admin` is 404" rule are removed. `ADMIN_HOSTS`, `allowedDevOrigins: ['admin.localhost']` and `NEXT_PUBLIC_ADMIN_URL` go away.
+- The proxy keeps working for `/admin/*` only: noindex headers, no-store on HTML, the optimistic session gate (cookie presence), and robots (`Disallow: /admin` added to the public `robots.ts`; `sitemap.ts` never lists admin).
+- Admin and landing now share one origin. Isolation that stays: separate route groups, root layouts, CSS, JS chunks and ESLint import boundaries; the landing-JS baseline check still applies. Isolation that is lost: host-scoped cookies, so cookie names and Path must be re-decided (open question in M4.5), and the BFF CSRF/Origin checks must still hold on a shared origin.
+- The M0–M4 behaviour (auth, BFF, data layer, dashboard, system) is otherwise unchanged; only URLs, redirects and the proxy move.
+
+**Everything in §2, §3, §4, §16 (cookie names/Path), §29, the Verification section and the M0 checklist items that mention the admin host or the rewrite is historical (it describes M0–M4). Where they conflict, this decision and [0002-admin-path-routing.md](0002-admin-path-routing.md) win.** Each is marked below rather than rewritten.
 
 ## Guardrails (from plan review)
 
@@ -93,6 +106,30 @@ M4 notes:
 - `ApiError` gained an optional `body` so the health service can read a 503 health report.
 - Live-verified 2026-10-04: login, System page (operational). The dev backend answered `GET /v1/admin/summary` with 500 `INTERNAL_ERROR`, so the dashboard's live success path was checked with the mock source and unit tests only; the live error state was verified.
 
+### M4.5 — Move Admin to `/admin` on the same origin (decision 2026-10-05; do before M5)
+
+Plan first (a short written plan for owner review), then implement. Nothing here changes behaviour except URLs. **The plan is [0002-admin-path-routing.md](0002-admin-path-routing.md) (proposed, awaiting owner approval); it answers the open questions below.**
+
+- [x] Plan reviewed and approved by the owner (open questions below answered in plan 0002)
+- [x] `src/lib/host.ts` + `src/proxy.ts`: drop host classification and rewrite; scope proxy logic to `/admin/*`; keep noindex, no-store, optimistic gate (presence only), `x-nn-path`, prefetch handling, `next` validation
+- [x] Public site: `/admin` stops being a 404; `robots.ts` disallows `/admin`; `sitemap.ts` unchanged; landing `not-found` / `[...slug]` do not swallow `/admin/*`
+- [x] Every admin URL builder uses the `/admin` base: nav hrefs, breadcrumbs, redirects (login, session-ended, refresh, session-error), `safe-next`, `normalizeAdminPath`, `SessionKeeper`/`browser-refresh` endpoints, `apiClient` BFF base (`/admin/api/backend`, `/admin/api/auth`), email-link base for reset / setup (`APP_WEB_URL` + `/admin/...`)
+- [x] Cookies re-decided for a shared origin (see open questions); CSRF header + Origin check re-verified
+- [x] Remove `ADMIN_HOSTS`, `allowedDevOrigins` admin entry, `NEXT_PUBLIC_ADMIN_URL`; update `.env.example`
+- [x] ESLint boundaries and Tailwind `@source` lists still hold; landing-JS baseline check passes
+- [x] Unit tests rewritten (proxy matrix, gate, safe-next, paths, cookies); full quality gate green
+- [ ] Live re-verification with the dev backend: login, refresh, logout, dashboard, system, direct URL entry, `/admin` unauthenticated redirect, landing `/` unaffected
+- [x] Docs updated in place: this plan (§2, §3, §4, §29, Verification, M0/M11 items), `AGENTS.md`, `docs/README.md`, `docs/architecture.md`, `docs/data-layer.md`, `.env.example`
+
+Open questions for the planning session:
+1. **Cookies:** `__Host-` requires `Path=/`, so the Admin tokens would be sent on every landing request. Prefer `__Secure-nn_at` / `__Secure-nn_rt` with `Path=/admin` (Secure, HttpOnly, SameSite=Lax)? Check the refresh route and BFF paths all live under `/admin`.
+2. **Route layout:** keep `src/app/(admin)/admin/...` as is (the URL already matches) and delete the rewrite, or restructure?
+3. **Root-layout clash:** two root layouts with overlapping top-level URLs (`/` vs `/admin`): confirm no landing catch-all (`[...slug]`) or `not-found` handling shadows `/admin/*`, and decide how an unknown `/admin/xyz` renders (console 404 inside the shell).
+4. **Robots/noindex:** headers via the proxy for `/admin/*` plus `Disallow: /admin`; confirm no admin URL ends up in the sitemap or JSON-LD.
+5. **Auth pages:** `/admin/login` etc. stay outside the shell; confirm the "signed-in user on login bounces to `next`" loop guard still works.
+6. **Email links:** backend reset / setup emails use `APP_WEB_URL`; they must point at `<site>/admin/reset-password` and `/admin/complete-account-setup`. Backend config only, no code change: confirm with the backend owner.
+7. **Security regression check:** same-origin means landing-page XSS could reach admin endpoints; confirm CSP/headers and that the BFF still requires the CSRF header and a matching Origin.
+
 ### M5 — Search & notifications
 
 - [ ] `SearchProvider` interface; navigation + actions providers; `useAdminSearch`
@@ -145,7 +182,7 @@ M4 notes:
 - [ ] Playwright e2e suite (host routing, auth gate, core flows, theme, mobile drawer)
 - [ ] Bundle guard script (`/` client JS vs the M0 baseline)
 - [ ] Write `docs/admin.md` (runbook) and update AGENTS.md routing table
-- [ ] Production checklist: second domain on the Vercel project, env vars, `APP_WEB_URL` for reset links
+- [ ] Production checklist: env vars, `APP_WEB_URL` for reset links (no second domain: Admin is at `/admin`, decision 2026-10-05)
 
 ## Contract check — 2026-10-04 (OpenAPI snapshot + backend repo)
 
@@ -202,6 +239,8 @@ Pagination is **cursor-only** (`{data, nextCursor}`, limit ≤ 100): no page num
 
 ## 2. Architecture
 
+> M0–M4 text; the `admin/` segment is now the real URL (no host rewrite). See plan 0002.
+
 One Next app, **two root layouts via route groups** → two separate trees (CSS, JS chunks, fonts, `<html>`).
 
 ```
@@ -225,6 +264,8 @@ Landing impact: **file moves only** — no component changes, same URLs. Verifie
 
 ## 3. Public vs Admin host strategy (`src/proxy.ts`)
 
+> Superseded 2026-10-05: the Admin app is served at `/admin` on the same origin (see "Decision 2026-10-05" and M4.5). The host rules below describe M0–M4 and are replaced in M4.5.
+
 - `isAdminHost(hostname)`: strips port; true if in `ADMIN_HOSTS` (comma list env) **or** starts with `admin.`.
 - **Admin host:** rewrite every path `p` → `/admin${p}` (browser URL stays `/clinicians`). Landing routes are not under `/admin`, so the landing can never render there. In proxy before rewriting: `/robots.txt` → `Disallow: /`; `/sitemap.xml` → 404; add `X-Robots-Tag: noindex, nofollow`; no-store on HTML; a literal `/admin/*` request → 404.
 - **Public host:** any request under `/admin` or `/api/admin` → 404; everything else untouched.
@@ -233,9 +274,11 @@ Landing impact: **file moves only** — no component changes, same URLs. Verifie
 
 **Local dev:** `http://admin.localhost:3001` (browsers resolve `*.localhost` to loopback, no hosts edit). Plain `localhost:3001` still serves the landing. Add `allowedDevOrigins: ['admin.localhost']`. Cookies are host-only, so sessions never mix. If a tool can't resolve `*.localhost`, add a hosts entry and set `ADMIN_HOSTS`. **Port clash:** backend defaults to :3000 = Next default → run backend with `PORT=4000` (its `.env`, verify) and Next with `-p 3001`; `API_BASE_URL=http://localhost:4000/v1`.
 
-**Production (Vercel project already linked):** add `admin.<domain>` as a second domain on the same project; set `ADMIN_HOSTS` / `NEXT_PUBLIC_ADMIN_URL`.
+**Production (Vercel project already linked):** ~~add `admin.<domain>` as a second domain~~ not possible on the free plan; see Decision 2026-10-05 (Admin at `/admin`).
 
 ## 4. Routing (as seen on the admin host)
+
+> Superseded 2026-10-05: the Admin app is served at `/admin` on the same origin (see "Decision 2026-10-05" and M4.5). Prefix every URL below with `/admin`.
 
 | URL | Purpose |
 |---|---|
@@ -367,7 +410,7 @@ Nothing fetched is copied into Zustand; no giant store.
 
 **Flow:** `/login` → Server Action → `POST /v1/auth/login` → `GET /v1/users/me` with the new token → require `role === 'ADMIN'` and `status === 'ACTIVE'`; otherwise `POST /auth/logout` (revoke the just-issued refresh token) and return a form error → else set cookies and redirect to a validated same-origin `next`.
 
-**Tokens:** only in httpOnly cookies on the admin host — `__Host-nn_at` (access, `Max-Age = expiresIn`), `__Host-nn_rt` (refresh, 30 d); `Secure`, `SameSite=Lax`, `Path=/`, **no Domain**. Dev uses non-`__Host-` names. Browser JS never sees a token.
+**Tokens (superseded by plan 0002 §5: `__Secure-` names, `Path=/admin`):** only in httpOnly cookies on the admin host — `__Host-nn_at` (access, `Max-Age = expiresIn`), `__Host-nn_rt` (refresh, 30 d); `Secure`, `SameSite=Lax`, `Path=/`, **no Domain**. Dev uses non-`__Host-` names. Browser JS never sees a token.
 
 **Server access (`auth/session.ts`, `server-only`, `React.cache`):** `getSession()` reads the cookie → `GET /users/me`; `requireAdmin()` redirects to `/login` or renders an Unauthorized screen for a non-admin (cookies cleared). This is the **real** gate; the backend re-enforces ADMIN on every call.
 
@@ -454,8 +497,8 @@ Dependency-ordered milestones M0 → M11 as in the checklist above. Each ends gr
 ## Verification (per milestone and at the end)
 
 1. `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` — route table shows `(public)` and `(admin)` routes; `/` client JS matches the pre-M0 baseline.
-2. `npm run dev -- -p 3001`: `http://localhost:3001` landing renders exactly as before; `/admin` → 404.
-3. `http://admin.localhost:3001`: unauthenticated → `/login`; HTML has no landing CSS / fonts / JSON-LD; `robots.txt` = Disallow; `X-Robots-Tag: noindex`.
+2. `npm run dev -- -p 3001`: `http://localhost:3001` landing renders exactly as before; (now `/admin` is the Admin app, see plan 0002).
+3. (now `http://localhost:3001/admin`, see plan 0002 §11) `http://admin.localhost:3001`: unauthenticated → `/login`; HTML has no landing CSS / fonts / JSON-LD; `robots.txt` = Disallow; `X-Robots-Tag: noindex`.
 4. With the local backend (seeded admin): login works; parent / clinician credentials → "no admin access" and the refresh token is revoked; suspending a throwaway session forces logout on the next request; deleting the refresh cookie → `/login?reason=expired`; parallel requests across expiry → no unexpected logout.
 5. Theme: toggle light / dark / system, hard reload → no flash; contrast test green.
 6. Feature walkthroughs in mock and live: approve / reject application, suspend / reactivate user, assign / revoke clinician, create → publish → archive template, change password → re-login.

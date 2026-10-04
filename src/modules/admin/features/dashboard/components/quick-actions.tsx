@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { ArrowRight, ClipboardList, Stethoscope, Users } from "lucide-react";
+import { ADMIN_ROUTES } from "../../../navigation/paths";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../ui/card";
 
 // Links only (plan 0001 §10). Targets that are still placeholder pages say so themselves when opened.
 const ACTIONS = [
-  { label: "Manage clinicians", href: "/clinicians", icon: Stethoscope },
-  { label: "Browse users", href: "/users", icon: Users },
-  { label: "Plan templates", href: "/plan-templates", icon: ClipboardList },
+  { label: "Manage clinicians", href: ADMIN_ROUTES.clinicians, icon: Stethoscope },
+  { label: "Browse users", href: ADMIN_ROUTES.users, icon: Users },
+  { label: "Plan templates", href: ADMIN_ROUTES.planTemplates, icon: ClipboardList },
 ];
 
 export function QuickActions() {

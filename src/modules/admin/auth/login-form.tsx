@@ -8,6 +8,7 @@ import { Field } from "../ui/field";
 import { Input } from "../ui/input";
 import { loginAction } from "./actions";
 import { SubmitButton } from "./submit-button";
+import { ADMIN_ROUTES } from "../navigation/paths";
 import { idleState } from "./form-state";
 
 interface LoginFormProps {
@@ -82,7 +83,7 @@ export function LoginForm({ error, notice, next }: LoginFormProps) {
             Password
           </label>
           <Link
-            href="/forgot-password"
+            href={ADMIN_ROUTES.forgotPassword}
             className="rounded-sm text-sm font-medium text-primary underline-offset-4 hover:underline"
           >
             Forgot password?

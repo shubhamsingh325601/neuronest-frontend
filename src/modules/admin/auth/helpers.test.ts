@@ -66,12 +66,12 @@ describe("session cookies", () => {
     };
   }
 
-  it("uses __Host- names, Secure and no Domain in production", () => {
+  it("uses __Secure- names, Path=/admin, Secure and no Domain in production", () => {
     const { store, sets } = recorder();
     writeSessionCookies(store, { accessToken: "a", refreshToken: "r", expiresIn: 900 }, true);
-    expect(sets.map((c) => c.name)).toEqual(["__Host-nn_at", "__Host-nn_rt"]);
+    expect(sets.map((c) => c.name)).toEqual(["__Secure-nn_at", "__Secure-nn_rt"]);
     for (const cookie of sets) {
-      expect(cookie.options).toMatchObject({ httpOnly: true, secure: true, sameSite: "lax", path: "/" });
+      expect(cookie.options).toMatchObject({ httpOnly: true, secure: true, sameSite: "lax", path: "/admin" });
       expect(cookie.options).not.toHaveProperty("domain");
     }
     expect(sets[1].options.maxAge).toBe(30 * 24 * 60 * 60);
@@ -84,11 +84,11 @@ describe("session cookies", () => {
     expect(sets[0].options.secure).toBe(false);
   });
 
-  it("clears with the same attributes (so a __Host- cookie is actually removed)", () => {
+  it("clears with the same attributes (Path must match or the cookie stays)", () => {
     const { store, sets } = recorder();
     clearSessionCookies(store, true);
     expect(sets).toHaveLength(2);
-    for (const cookie of sets) expect(cookie).toMatchObject({ value: "", options: { maxAge: 0, secure: true, path: "/", httpOnly: true } });
+    for (const cookie of sets) expect(cookie).toMatchObject({ value: "", options: { maxAge: 0, secure: true, path: "/admin", httpOnly: true } });
   });
 });
 

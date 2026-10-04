@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { describeError } from "../../../lib/describe-error";
 import { Button } from "../../../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../ui/card";
+import { ADMIN_ROUTES } from "../../../navigation/paths";
 import { Skeleton } from "../../../ui/skeleton";
 import { useHealthQuery } from "../hooks/use-health";
 import { HealthBadge, healthSummary } from "./health-status";
@@ -40,7 +41,7 @@ export function SystemStatusCard() {
           <p className="text-sm text-muted-foreground">{healthSummary(health.data!.state)}</p>
         )}
         <Link
-          href="/system"
+          href={ADMIN_ROUTES.system}
           className="inline-flex items-center gap-1 justify-self-start rounded-sm text-sm font-medium outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
         >
           System details <ArrowRight className="size-3.5" aria-hidden="true" />

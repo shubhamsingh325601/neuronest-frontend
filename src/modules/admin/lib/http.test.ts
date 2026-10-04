@@ -76,7 +76,7 @@ describe("createApiClient (browser -> BFF)", () => {
     const { client, fetchImpl } = setup([Response.json({ data: [] })], async () => ({ next: 1 }));
     await client.get("users", { query: { role: "PARENT" } });
     const [url, init] = fetchImpl.mock.calls[0];
-    expect(url).toBe("/api/backend/users?role=PARENT");
+    expect(url).toBe("/admin/api/backend/users?role=PARENT");
     expect(init.headers["x-nn-admin"]).toBe("1");
     expect(init.headers.Authorization).toBeUndefined();
     expect(init.credentials).toBe("same-origin");
@@ -96,15 +96,15 @@ describe("createApiClient (browser -> BFF)", () => {
   });
 
   it("sends the user to sign in when the session is over", async () => {
-    const { client, navigate } = setup([problem(401, "MISSING_TOKEN")], async () => ({ redirect: "/login?reason=expired" }));
+    const { client, navigate } = setup([problem(401, "MISSING_TOKEN")], async () => ({ redirect: "/admin/login?reason=expired" }));
     await expect(client.get("users")).rejects.toBeInstanceOf(ApiError);
-    expect(navigate).toHaveBeenCalledWith("/login?reason=expired");
+    expect(navigate).toHaveBeenCalledWith("/admin/login?reason=expired");
   });
 
   it("forces sign-in on ACCOUNT_NOT_ACTIVE without refreshing, and leaves other 4xx alone", async () => {
     const a = setup([problem(403, "ACCOUNT_NOT_ACTIVE")], async () => ({ next: 1 }));
     await expect(a.client.get("users")).rejects.toMatchObject({ code: "ACCOUNT_NOT_ACTIVE" });
-    expect(a.navigate).toHaveBeenCalledWith("/login?reason=suspended");
+    expect(a.navigate).toHaveBeenCalledWith("/admin/login?reason=suspended");
     expect(a.refreshFn).not.toHaveBeenCalled();
 
     const b = setup([problem(403, "INSUFFICIENT_PERMISSIONS")], async () => ({ next: 1 }));
