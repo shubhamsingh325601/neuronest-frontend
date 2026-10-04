@@ -17,7 +17,7 @@ This file is loaded in every session, so it stays short. Detail lives in `docs/`
 
 ## Rules
 
-- Before saying work is done, run `npm run typecheck`, `npm run lint` and `npm run build`; all must pass.
+- Before saying work is done, run `npm run typecheck`, `npm run lint`, `npm test` and `npm run build`; all must pass.
 - Server Components by default; add `"use client"` only for hooks, events or motion.
 - Marketing copy lives in `src/content/`, never in JSX.
 - Merge classes with `cn()` from `@/lib/utils`.

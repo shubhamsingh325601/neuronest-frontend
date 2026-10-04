@@ -1,0 +1,228 @@
+@import "tailwindcss" source(none);
+/* Scan only Admin code, so landing utilities never leak in (and vice versa; see globals.css). */
+@source "../";
+@source "../../../app/(admin)";
+@source "../../../mocks";
+
+/*
+ * Admin design tokens. Imported only by the admin root layout.
+ * Components use semantic utilities (bg-background, text-muted-foreground, ...), never raw colours.
+ * Values are plain `oklch(L C H)` so the contrast test can read them straight from this file.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Brand palette (from the landing site): white surfaces with warm tints, coral primary, sage secondary, gold highlight,
+ * warm brown text. Coral is deepened for the primary so white text on it passes AA; the landing coral
+ * (#E2775B) is used for tints, rings and the dark theme. Dark mode keeps the same warm hues on a brown-black base.
+ */
+:root {
+  --radius: 0.875rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.3 0.015 60);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.3 0.015 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.3 0.015 60);
+  --muted: oklch(0.965 0.008 70);
+  --muted-foreground: oklch(0.5 0.02 60);
+  --accent: oklch(0.93 0.035 45);
+  --accent-foreground: oklch(0.32 0.04 40);
+  --border: oklch(0.92 0.012 70);
+  --input: oklch(0.84 0.025 70);
+  --ring: oklch(0.5 0.14 38);
+
+  --primary: oklch(0.54 0.15 38);
+  --primary-foreground: oklch(0.99 0.005 70);
+  --secondary: oklch(0.93 0.024 135);
+  --secondary-foreground: oklch(0.38 0.06 140);
+  --destructive: oklch(0.5 0.2 22);
+  --destructive-foreground: oklch(0.99 0.005 70);
+  --success: oklch(0.46 0.09 150);
+  --success-foreground: oklch(0.99 0.005 70);
+  --warning: oklch(0.5 0.1 75);
+  --warning-foreground: oklch(0.99 0.005 70);
+  --info: oklch(0.48 0.1 235);
+  --info-foreground: oklch(0.99 0.005 70);
+
+  --sidebar: oklch(0.982 0.007 70);
+  --sidebar-foreground: oklch(0.3 0.015 60);
+  --sidebar-accent: oklch(0.92 0.04 45);
+  --sidebar-accent-foreground: oklch(0.32 0.04 40);
+  --sidebar-border: oklch(0.9 0.02 70);
+  --sidebar-ring: oklch(0.5 0.14 38);
+
+  /* Sage brand panel used on the sign-in screen. */
+  --brand-panel: oklch(0.38 0.06 140);
+  --brand-panel-foreground: oklch(0.97 0.012 70);
+  --brand-panel-muted: oklch(0.86 0.03 120);
+
+  /* Reserved for charts. */
+  --chart-1: oklch(0.6 0.14 38);
+  --chart-2: oklch(0.55 0.07 140);
+  --chart-3: oklch(0.69 0.12 80);
+  --chart-4: oklch(0.55 0.1 235);
+  --chart-5: oklch(0.5 0.2 22);
+
+  color-scheme: light;
+}
+
+.dark {
+  /* Ink: a near-black with a faint cool blue cast. Reads as black, but softer and more "dashboard" than pure #000. */
+  --background: oklch(0.145 0.008 265);
+  --foreground: oklch(0.96 0.005 80);
+  --card: oklch(0.18 0.009 265);
+  --card-foreground: oklch(0.96 0.005 80);
+  --popover: oklch(0.21 0.01 265);
+  --popover-foreground: oklch(0.96 0.005 80);
+  --muted: oklch(0.24 0.01 265);
+  --muted-foreground: oklch(0.7 0.012 265);
+  --accent: oklch(0.27 0.014 265);
+  --accent-foreground: oklch(0.96 0.005 80);
+  --border: oklch(0.28 0.01 265);
+  --input: oklch(0.34 0.012 265);
+  --ring: oklch(0.72 0.13 40);
+
+  --primary: oklch(0.72 0.14 40);
+  --primary-foreground: oklch(0.2 0.02 50);
+  --secondary: oklch(0.26 0.012 265);
+  --secondary-foreground: oklch(0.9 0.02 265);
+  --destructive: oklch(0.72 0.16 22);
+  --destructive-foreground: oklch(0.18 0.02 30);
+  --success: oklch(0.76 0.11 148);
+  --success-foreground: oklch(0.18 0.02 150);
+  --warning: oklch(0.79 0.12 80);
+  --warning-foreground: oklch(0.2 0.02 80);
+  --info: oklch(0.76 0.09 235);
+  --info-foreground: oklch(0.18 0.02 235);
+
+  --sidebar: oklch(0.16 0.008 265);
+  --sidebar-foreground: oklch(0.92 0.006 80);
+  --sidebar-accent: oklch(0.26 0.015 265);
+  --sidebar-accent-foreground: oklch(0.96 0.005 80);
+  --sidebar-border: oklch(0.26 0.01 265);
+  --sidebar-ring: oklch(0.72 0.13 40);
+
+  --brand-panel: oklch(0.2 0.03 150);
+  --brand-panel-foreground: oklch(0.95 0.012 70);
+  --brand-panel-muted: oklch(0.8 0.03 120);
+
+  --chart-1: oklch(0.72 0.14 40);
+  --chart-2: oklch(0.72 0.08 140);
+  --chart-3: oklch(0.79 0.12 80);
+  --chart-4: oklch(0.76 0.09 235);
+  --chart-5: oklch(0.72 0.16 22);
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: var(--font-admin-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-brand-panel: var(--brand-panel);
+  --color-brand-panel-foreground: var(--brand-panel-foreground);
+  --color-brand-panel-muted: var(--brand-panel-muted);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Radix overlay animation hooks (data-state), used by Dialog, Sheet, Dropdown, Tooltip. */
+@keyframes admin-fade-in {
+  from { opacity: 0; }
+}
+@keyframes admin-fade-out {
+  to { opacity: 0; }
+}
+@keyframes admin-zoom-in {
+  from { opacity: 0; transform: scale(0.96); }
+}
+@keyframes admin-zoom-out {
+  to { opacity: 0; transform: scale(0.96); }
+}
+@keyframes admin-slide-in-right {
+  from { transform: translateX(100%); }
+}
+@keyframes admin-slide-out-right {
+  to { transform: translateX(100%); }
+}
+@keyframes admin-slide-in-left {
+  from { transform: translateX(-100%); }
+}
+@keyframes admin-slide-out-left {
+  to { transform: translateX(-100%); }
+}
+@keyframes admin-slide-in-bottom {
+  from { transform: translateY(100%); }
+}
+@keyframes admin-slide-out-bottom {
+  to { transform: translateY(100%); }
+}

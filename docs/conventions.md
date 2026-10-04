@@ -7,8 +7,11 @@ Rules for writing and verifying code in this repo. Architecture lives in [archit
 ```bash
 npm run typecheck   # tsc --noEmit, must be 0 errors
 npm run lint        # ESLint 9 (eslint-config-next core-web-vitals + typescript)
+npm test            # Vitest (node environment), all tests must pass
 npm run build       # Next production build; every route must compile
 ```
+
+Admin code has two extra lint rules: import boundaries (see [architecture.md](architecture.md)) and a colour rule, so no hex/`rgb()`/`oklch()` literals, arbitrary colour classes or Tailwind palette classes (`bg-red-500`); use the semantic tokens (`bg-background`, `text-muted-foreground`, ...). `black`/`white` are allowed for scrims.
 
 Run from the repo root. Keep `.env.local` untracked (it is gitignored; `.env.example` is the template).
 
@@ -25,7 +28,7 @@ Run from the repo root. Keep `.env.local` untracked (it is gitignored; `.env.exa
 
 ## Styling
 
-- Landing tokens are CSS custom properties in `src/app/globals.css` (see [design-system.md](design-system.md)). There is no Tailwind `@theme` block, so utilities like `bg-coral` do not exist; use the semantic CSS classes or arbitrary values already used nearby.
+- Landing tokens are CSS custom properties in `src/app/(public)/globals.css` (see [design-system.md](design-system.md)). There is no Tailwind `@theme` block, so utilities like `bg-coral` do not exist; use the semantic CSS classes or arbitrary values already used nearby.
 - Merge conditional classes with `cn()` from `@/lib/utils`.
 - Fonts: `font-serif` (Lora) headings, `font-script` (Caveat) eyebrows, `font-sans` (Inter) body/UI.
 - Respect `prefers-reduced-motion` for any new animation.

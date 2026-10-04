@@ -1,0 +1,110 @@
+{
+  "route": "/",
+  "source": ".next/server/app/index.html",
+  "totals": {
+    "jsFiles": 12,
+    "jsBytes": 822998,
+    "jsGzipBytes": 259464,
+    "cssBytes": 74370,
+    "cssGzipBytes": 15741,
+    "fontBytes": 160796
+  },
+  "files": [
+    {
+      "file": "chunks/0cz1d0mv5g_q7.js",
+      "type": "js",
+      "bytes": 112594,
+      "gzipBytes": 39627
+    },
+    {
+      "file": "chunks/0h2qsuyze9ds1.js",
+      "type": "js",
+      "bytes": 14377,
+      "gzipBytes": 3662
+    },
+    {
+      "file": "chunks/0l_8qljh4rtze.js",
+      "type": "js",
+      "bytes": 53285,
+      "gzipBytes": 17318
+    },
+    {
+      "file": "chunks/1-f0o9ywnnpol.js",
+      "type": "js",
+      "bytes": 828,
+      "gzipBytes": 495
+    },
+    {
+      "file": "chunks/12noz3xcdd4cz.js",
+      "type": "js",
+      "bytes": 228922,
+      "gzipBytes": 71579
+    },
+    {
+      "file": "chunks/19mx3mg6lkumu.js",
+      "type": "js",
+      "bytes": 28907,
+      "gzipBytes": 7614
+    },
+    {
+      "file": "chunks/2-rtuqsgzmno4.js",
+      "type": "js",
+      "bytes": 165743,
+      "gzipBytes": 45095
+    },
+    {
+      "file": "chunks/27feifegz5d3i.js",
+      "type": "js",
+      "bytes": 24667,
+      "gzipBytes": 9445
+    },
+    {
+      "file": "chunks/2cvxqgnb1kzqf.js",
+      "type": "js",
+      "bytes": 123216,
+      "gzipBytes": 40786
+    },
+    {
+      "file": "chunks/2g02pxpo61-we.css",
+      "type": "css",
+      "bytes": 74370,
+      "gzipBytes": 15741
+    },
+    {
+      "file": "chunks/3dk4ofyby6g25.js",
+      "type": "js",
+      "bytes": 55140,
+      "gzipBytes": 17964
+    },
+    {
+      "file": "chunks/3s6nzrbk-8mnv.js",
+      "type": "js",
+      "bytes": 5598,
+      "gzipBytes": 2029
+    },
+    {
+      "file": "chunks/turbopack-0krcd-8veh_b9.js",
+      "type": "js",
+      "bytes": 9721,
+      "gzipBytes": 3850
+    },
+    {
+      "file": "media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
+      "type": "woff2",
+      "bytes": 48432,
+      "gzipBytes": 48442
+    },
+    {
+      "file": "media/8c2eb9ceedecfc8e-s.p.23aeddxv5enbo.woff2",
+      "type": "woff2",
+      "bytes": 37792,
+      "gzipBytes": 37721
+    },
+    {
+      "file": "media/a85fe84266768609-s.p.0h6ig86gwutp4.woff2",
+      "type": "woff2",
+      "bytes": 74572,
+      "gzipBytes": 74615
+    }
+  ]
+}

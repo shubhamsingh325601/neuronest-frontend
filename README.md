@@ -10,7 +10,7 @@
 
 **Nurture · Support · Empower**
 
-*A science-backed, human-reviewed digital health companion for parents of children (ages 2–8) with neurodevelopmental differences — ADHD, Autism, sensory processing differences, and developmental delays.*
+*A science-backed, human-reviewed digital health companion for parents of children (ages 3–12) with neurodevelopmental differences — ADHD, Autism, sensory processing differences, and developmental delays.*
 
 [Explore the Routes](#-routes--pages) • [Getting Started](#-getting-started) • [Design System](#-design-system) • [Architecture](#-architecture)
 
@@ -86,7 +86,7 @@ GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/your-deployment-id/
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+Open [http://localhost:3001](http://localhost:3001) in your browser to view the application.
 
 ---
 
@@ -99,6 +99,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 | `npm run start` | Serves the production build locally |
 | `npm run lint` | Runs ESLint checks across all TypeScript and React files |
 | `npm run typecheck` | Executes TypeScript compiler typecheck (`tsc --noEmit`) |
+| `npm test` | Runs the Vitest unit tests |
 
 ---
 

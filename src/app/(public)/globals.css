@@ -1,4 +1,9 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+/* Scan only landing code: automatic detection would pull Admin utilities into the landing CSS. */
+@source "./";
+@source "../../components";
+@source "../../content";
+@source "../../lib";
 
 /* ==========================================================================
    NeuroNest — Design tokens

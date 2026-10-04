@@ -1,6 +1,6 @@
 # Plan 0001 — Admin Application
 
-> **Status: APPROVED — M0 is next; no implementation has started.** Work one milestone at a time and stop after each for review. Tick boxes as work lands: `[ ]` not started · `[x]` done.
+> **Status: APPROVED — M0 to M4 implemented, awaiting review; M5 not started.** Work one milestone at a time and stop after each for review. Tick boxes as work lands: `[ ]` not started · `[x]` done.
 > Scope: the Admin app only. Parent and Clinician apps are out of scope. The landing site must not change behaviour.
 
 ## Guardrails (from plan review)
@@ -18,80 +18,93 @@
 - [x] Move landing files into a `(public)` route group so admin gets its own root layout — see §2
 - [x] Local ports: Next on `3001`, admin at `http://admin.localhost:3001`; backend moved off :3000 (e.g. `PORT=4000`) — see §3
 - [x] Hand-rolled theme provider (no `next-themes`); admin primitives in `modules/admin/ui` (not the landing ones) — see §7, §8
-- [ ] Reconcile UX with the reference screenshot (it was not received when this plan was written)
+- [x] Reconcile UX with the reference screenshot (received in M2: grouped sidebar with tinted active item and accent bar, search-led topbar, brand-coloured lead card; adopted with accessibility additions)
 
 ### M0 — Foundations & isolation
 
-- [ ] Install only what M0 needs (`vitest`). Every other dependency (`@tanstack/react-query`, `zustand`, `sonner`, `cmdk`, `radix-ui`, `class-variance-authority`, `server-only`, …) is installed in the milestone that first uses it
-- [ ] `git mv` landing routes into `src/app/(public)/`; move root `layout.tsx` → `(public)/layout.tsx`
-- [ ] `(public)/[...slug]/page.tsx` calling `notFound()`; move `not-found.tsx` / `error.tsx` into `(public)`
-- [ ] `(admin)/layout.tsx` root layout + placeholder `/` page
-- [ ] `src/proxy.ts`: host classification + admin rewrite to `/admin/*`; public host `/admin*` → 404
-- [ ] Admin host: `robots.txt` Disallow, `sitemap.xml` 404, `X-Robots-Tag: noindex`
-- [ ] `allowedDevOrigins: ['admin.localhost']`; `next dev -p 3001`
-- [ ] ESLint boundary rules (public ⛔ admin, admin ⛔ landing components/content)
-- [ ] Vitest (node environment) + `test` script, with unit tests for the proxy host/path decisions. Keep test infra minimal: RTL arrives with the first component test, Playwright in M11
-- [ ] Record the landing client-JS baseline for `/` and confirm it is unchanged after the move. Next 16 no longer prints "First Load JS" in `next build`, so measure it with a small script over `.next` build artifacts (or `next experimental-analyze --output`) and commit the baseline file
-- [ ] Verify: `localhost:3001` landing identical; `admin.localhost:3001` shows admin stub; `/admin` on public host = 404
+- [x] Install only what M0 needs (`vitest`). Every other dependency (`@tanstack/react-query`, `zustand`, `sonner`, `cmdk`, `radix-ui`, `class-variance-authority`, `server-only`, …) is installed in the milestone that first uses it
+- [x] `git mv` landing routes into `src/app/(public)/`; move root `layout.tsx` → `(public)/layout.tsx`
+- [x] `(public)/[...slug]/page.tsx` calling `notFound()`; move `not-found.tsx` / `error.tsx` into `(public)`
+- [x] `(admin)/layout.tsx` root layout + placeholder `/` page
+- [x] `src/proxy.ts`: host classification + admin rewrite to `/admin/*`; public host `/admin*` → 404
+- [x] Admin host: `robots.txt` Disallow, `sitemap.xml` 404, `X-Robots-Tag: noindex`
+- [x] `allowedDevOrigins: ['admin.localhost']`; `next dev -p 3001`
+- [x] ESLint boundary rules (public ⛔ admin, admin ⛔ landing components/content)
+- [x] Vitest (node environment) + `test` script, with unit tests for the proxy host/path decisions. Keep test infra minimal: RTL arrives with the first component test, Playwright in M11
+- [x] Record the landing client-JS baseline for `/` and confirm it is unchanged after the move. Next 16 no longer prints "First Load JS" in `next build`, so measure it with a small script over `.next` build artifacts (or `next experimental-analyze --output`) and commit the baseline file
+- [x] Verify: `localhost:3001` landing identical; `admin.localhost:3001` shows admin stub; `/admin` on public host = 404
 
 ### M1 — Tokens, theme, primitives v1
 
-- [ ] Gate: before installing `radix-ui` / `class-variance-authority`, confirm with the reviewer that copy-in Radix primitives count as primitives, not "another UI framework". If not, build the few primitives needed by hand
-- [ ] `admin.css`: light + dark semantic tokens, `@theme inline`, `@custom-variant dark`
-- [ ] Theme provider (`light | dark | system`) + pre-paint script, no flash on reload
-- [ ] Contrast unit test for key token pairs (AA)
-- [ ] Primitives: Button, Input, Field, Card, Badge, StatusBadge, Skeleton, Tooltip, Dialog, ConfirmDialog, DropdownMenu, Sheet
-- [ ] Sonner toaster + `toast.ts` wrapper
-- [ ] Lint check: no hex colours / arbitrary colour classes in `modules/admin`
+- [x] Gate: before installing `radix-ui` / `class-variance-authority`, confirm with the reviewer that copy-in Radix primitives count as primitives, not "another UI framework". If not, build the few primitives needed by hand
+- [x] `admin.css`: light + dark semantic tokens, `@theme inline`, `@custom-variant dark`
+- [x] Theme provider (`light | dark | system`) + pre-paint script, no flash on reload
+- [x] Contrast unit test for key token pairs (AA)
+- [x] Primitives: Button, Input, Field, Card, Badge, StatusBadge, Skeleton, Tooltip, Dialog, ConfirmDialog, DropdownMenu, Sheet
+- [x] Sonner toaster + `toast.ts` wrapper
+- [x] Lint check: no hex colours / arbitrary colour classes in `modules/admin`
 
 ### M2 — Shell
 
-- [ ] `nav-config.ts` (typed tree, `status: live | placeholder`, badge keys)
-- [ ] Sidebar: groups, submenu, active state, collapse (persisted), icon-only mode + tooltips
-- [ ] Mobile drawer (focus-trapped); tablet rail
-- [ ] Topbar: toggle, breadcrumbs, search trigger, bell, theme control, user menu
-- [ ] `PageHeader`, `LoadingState`, `EmptyState`, `ErrorState`
-- [ ] Breadcrumb registry + `<Breadcrumbs>` (static labels)
-- [ ] `ui-store` (Zustand): `sidebarCollapsed`, `mobileNavOpen`, `commandOpen`, `notificationsOpen`
-- [ ] `MockDataChip` shown whenever a mock source is active
-- [ ] Console-level `loading.tsx`, `error.tsx`, `not-found.tsx`, `[...slug]`
-- [ ] Every nav route has a placeholder page, honestly labelled
+- [x] `nav-config.ts` (typed tree, `status: live | placeholder`, badge keys)
+- [x] Sidebar: groups, submenu, active state, collapse (persisted), icon-only mode + tooltips
+- [x] Mobile drawer (focus-trapped); tablet rail
+- [x] Topbar: toggle, breadcrumbs, search trigger, bell, theme control, user menu
+- [x] `PageHeader`, `LoadingState`, `EmptyState`, `ErrorState`
+- [x] Breadcrumb registry + `<Breadcrumbs>` (static labels)
+- [x] `ui-store` (Zustand): `sidebarCollapsed`, `mobileNavOpen`, `commandOpen`, `notificationsOpen`
+- [x] `MockDataChip` shown whenever a mock source is active
+- [x] Console-level `loading.tsx`, `error.tsx`, `not-found.tsx`, `[...slug]`
+- [x] Every nav route has a placeholder page, honestly labelled
 
 ### M3 — Auth & session (live backend)
 
-- [ ] `config/env.ts` (zod-validated) and `.env.example` additions (names only)
-- [ ] `server-api.ts` + `api-errors.ts` (problem+json → `ApiError`)
-- [ ] Cookie helpers (`__Host-` names in prod, host-only, httpOnly, SameSite=Lax)
-- [ ] Login Server Action: login → `/users/me` → require `ADMIN` + `ACTIVE`, else revoke token and show error
-- [ ] `getSession()` / `requireAdmin()` (server-only, `React.cache`) in `(console)/layout.tsx`
-- [ ] `/api/backend/[...path]` BFF handler: allowlist, bearer injection, CSRF checks
-- [ ] `/api/auth/refresh`: single-flight + short old→new memo; proxy never refreshes
-- [ ] `SessionKeeper` (proactive refresh, `navigator.locks` across tabs); prefetch requests ignored
-- [ ] Proxy optimistic gate (cookie presence only) + `next` redirect validation
-- [ ] Pages: login, forgot-password, reset-password, complete-account-setup
-- [ ] Cases: unauthenticated · non-admin · expired · suspended (`ACCOUNT_NOT_ACTIVE`) · 429 · logout · init skeleton
-- [ ] `INVALID_CREDENTIALS` treated as a form error, never as session expiry
-- [ ] Unit tests: refresh single-flight, BFF allowlist/CSRF, proxy matrix
+- [x] `config/env.ts` (zod-validated) and `.env.example` additions (names only)
+- [x] `server-api.ts` + `api-errors.ts` (problem+json → `ApiError`)
+- [x] Cookie helpers (`__Host-` names in prod, host-only, httpOnly, SameSite=Lax)
+- [x] Login Server Action: login → `/users/me` → require `ADMIN` + `ACTIVE`, else revoke token and show error
+- [x] `getSession()` / `requireAdmin()` (server-only, `React.cache`) in `(console)/layout.tsx`
+- [x] `/api/backend/[...path]` BFF handler: allowlist, bearer injection, CSRF checks
+- [x] `/api/auth/refresh`: single-flight + short old→new memo; proxy never refreshes
+- [x] `SessionKeeper` (proactive refresh, `navigator.locks` across tabs); prefetch requests ignored
+- [x] Proxy optimistic gate (cookie presence only) + `next` redirect validation
+- [x] Pages: login, forgot-password, reset-password, complete-account-setup (login UI already built in M1 at `modules/admin/auth/`, not wired; M3 replaces `handleSubmit` with the Server Action)
+- [x] Cases: unauthenticated · non-admin · expired · suspended (`ACCOUNT_NOT_ACTIVE`) · 429 · logout · init skeleton
+- [x] `INVALID_CREDENTIALS` treated as a form error, never as session expiry
+- [x] Unit tests: refresh single-flight, BFF allowlist/CSRF, proxy matrix
+
+M3 notes (where the build differs from §16, all small):
+- Server Components cannot set cookies, so a forced sign-out (suspended / not an admin) is a redirect to `GET /api/auth/session-ended?reason=`, which clears the cookies and lands on `/login?reason=`; there is no separate "no admin access" screen. A non-admin is normally stopped at login (revoked, form error).
+- A refresh that is throttled (429) or fails because the backend is down keeps the session and goes to a `/session-error` page (countdown, retry, sign out). Sending it to `/login` would loop through the proxy's "signed-in user on /login" bounce.
+- `/login?reason=...` is never bounced by the proxy (loop guard). A refresh token the backend rejects as malformed (`VALIDATION_ERROR`) counts as an expired session.
+- The proxy forwards the browser-visible path in `x-nn-path` so the layout can build `next` for the refresh redirect.
 
 ### M4 — Data layer, Dashboard, System
 
-- [ ] `QueryClient` defaults, query-key factories, `useCursorList` (infinite query helper)
-- [ ] `XApi` interface + `live.ts` + mock factory (`mocks/admin/_factory.ts`), `data-source.ts` flags
-- [ ] Production build refuses mock sources unless `ALLOW_ADMIN_MOCKS=1`
-- [ ] Dashboard: 6 summary cards (live), quick actions, system status card, activity feed placeholder
-- [ ] System page: `/health` polling, 503 shown as degraded/down; AI observability placeholder
+- [x] `QueryClient` defaults, query-key factories, `useCursorList` (infinite query helper)
+- [x] `XApi` interface + `live.ts` + mock factory (`mocks/admin/_factory.ts`), `data-source.ts` flags
+- [x] Production build refuses mock sources unless `ALLOW_ADMIN_MOCKS=1`
+- [x] Dashboard: 6 summary cards (live), quick actions, system status card, activity feed placeholder
+- [x] System page: `/health` polling, 503 shown as degraded/down; AI observability placeholder
+
+M4 notes:
+- The backend already ships `invitedClinicians` (and an extra `deadJobs`, unused), so no mocked summary field was needed.
+- The mock selectors are `NEXT_PUBLIC_ADMIN_DATA_SOURCE` / `NEXT_PUBLIC_ADMIN_MOCK_FEATURES` (plan §18 said `ADMIN_MOCK_FEATURES`): hooks run in the browser. `next.config.ts` pins both so live bundles drop the mock imports.
+- `ApiError` gained an optional `body` so the health service can read a 503 health report.
+- Live-verified 2026-10-04: login, System page (operational). The dev backend answered `GET /v1/admin/summary` with 500 `INTERNAL_ERROR`, so the dashboard's live success path was checked with the mock source and unit tests only; the live error state was verified.
 
 ### M5 — Search & notifications
 
 - [ ] `SearchProvider` interface; navigation + actions providers; `useAdminSearch`
 - [ ] Command palette (cmdk, lazy), ⌘/Ctrl+K and `/` shortcuts, focus restore
 - [ ] `NotificationSource` interface + mock source; bell + drawer with "sample data" label
-- [ ] Sidebar badge from real `pendingClinicianApplications`
+- [ ] Sidebar badge only if a real actionable count exists (the application queue no longer exists); otherwise drop
 
 ### M6 — Clinicians
 
-- [ ] Applications list (status filter, load more) and detail
-- [ ] Approve (confirm) and Reject (dialog, optional reason ≤2000); handle `APPLICATION_DECISION_FINAL`, `EMAIL_ALREADY_REGISTERED`
+- [ ] Clinician directory (`GET /clinicians`, `?status=` and `?q=` once released) with load more
+- [ ] Invite clinician (`POST /clinicians`: name, email, optional profile); handle `EMAIL_ALREADY_REGISTERED`; invitation email is best-effort, so show the invite as created either way
+- [ ] Resend invitation while INVITED (`CLINICIAN_NOT_INVITED` otherwise); edit name / profile; email editable only while INVITED (`CLINICIAN_EMAIL_LOCKED`)
 - [ ] Clinician list (client-side filter) and detail (via `/users/{id}` + assigned children)
 - [ ] Suspend / reactivate with confirm
 - [ ] Empty/loading/error states; tests
@@ -133,6 +146,29 @@
 - [ ] Bundle guard script (`/` client JS vs the M0 baseline)
 - [ ] Write `docs/admin.md` (runbook) and update AGENTS.md routing table
 - [ ] Production checklist: second domain on the Vercel project, env vars, `APP_WEB_URL` for reset links
+
+## Contract check — 2026-10-04 (OpenAPI snapshot + backend repo)
+
+The backend owner supplied `api-1.json` (OpenAPI 3.0, `/v1`). The sibling repo (`../neuro-nest-backend`, uncommitted Phase 10 work) is **ahead** of that snapshot; where they differ the repo is noted separately. The backend is still changing, so treat every item as provisional until released.
+
+**Confirmed unchanged:** auth routes and DTOs (`SessionTokensDto { accessToken, refreshToken, tokenType, expiresIn }`), the cursor envelope `{ data, nextCursor }`, ProblemDetails (`code`, `requestId`, `errors[]`), `/users` (`role` and `status` filters), `/children`, care team, plan templates (no status filter, `days` included in list rows), per-child plans / notes / media / call logs, `/admin/summary`, public `/health`.
+
+**Deltas that affect this plan**
+
+| # | Finding | Impact |
+|---|---|---|
+| 1 | User status enum is `ACTIVE, SUSPENDED, DEACTIVATED, INVITED` (the plan assumed no DEACTIVATED). Reactivate works from SUSPENDED and DEACTIVATED; suspend from ACTIVE and INVITED. | StatusBadge updated; M6/M7 action rules |
+| 2 | Application status enum has `REVIEWED`, which no backend code sets. | Treat as display-only |
+| 3 | Reset uses `newPassword`; account setup uses `password`; change-password uses `currentPassword` + `newPassword`. Backend validation is `forbidNonWhitelisted`, so send only documented fields. | M3 form actions |
+| 4 | Spec paths already include `/v1`, so `API_BASE_URL` is the **origin** (e.g. `http://localhost:4000`), not `.../v1`. The backend defaults to port 3000. | M3 env |
+| 5 | **Auth throttle is 5 req / 60 s on every `/v1/auth/*` route, refresh and logout included.** Originally per client IP; **changed 2026-10-04 to per identity** (user, else email, else token in the body). The BFF no longer forwards `X-Forwarded-For`; 429 shows a countdown and disables submit. | M3 |
+| 6 | `GET /v1/health` is untyped in the spec; the repo returns `{ status: "ok"/"degraded", db: "up"/"down", uptime (seconds), timestamp }` and **503** when the DB is down. | M4 system page |
+| 7 | The backend now has CORS (`CORS_ORIGINS`). The BFF still avoids it. | none |
+| 8 | Error codes in backend source that matter here: `INVALID_CREDENTIALS`, `EMAIL_NOT_VERIFIED` (403), `ACCOUNT_NOT_ACTIVE` (403), `INVALID_REFRESH_TOKEN`, `INVALID_TOKEN`, `MISSING_TOKEN`, `INSUFFICIENT_PERMISSIONS`, `RATE_LIMITED`, `INVALID_RESET_TOKEN`, `INVALID_SETUP_TOKEN`, `VALIDATION_ERROR`, `CANNOT_SUSPEND_SELF`, `INVALID_STATUS_TRANSITION`, `CLINICIAN_ALREADY_ASSIGNED`, `CLINICIAN_NOT_ACTIVE`, `CLINICIAN_NOT_FOUND`, `CHILD_NOT_FOUND`. The plan's `APPLICATION_DECISION_FINAL` does not appear in source. | M3 error map; M6 |
+
+**Decided 2026-10-04 (owner): build toward backend Phase 10.** There is no application flow; clinicians are invited by an admin. M2 nav, dashboard and placeholders were updated accordingly. Applications return only if the owner adds a public form later. Details of the Phase 10 change:
+
+**Backend Phase 10 (in the repo, not yet in the spec)** replaces the application flow with admin-created clinicians: `POST /clinicians` (creates an INVITED clinician and emails a setup link), `GET /clinicians/{id}`, `PATCH /clinicians/{id}`, `POST /clinicians/{id}/resend-invitation` and `GET /clinicians?status=&q=`. The five `/clinician-applications` routes are **removed**, and `/admin/summary` swaps `pendingClinicianApplications` for `invitedClinicians`. If this ships, the Applications nav item, the review queue (M6), the "pending applications" dashboard card and the sidebar badge key all change. **Dependency:** M4 and M6 need the Phase 10 routes and the new summary field released; until then they use mocks.
 
 ## 0. Context
 
@@ -205,7 +241,7 @@ Landing impact: **file moves only** — no component changes, same URLs. Verifie
 |---|---|
 | `/login`, `/forgot-password`, `/reset-password?token`, `/complete-account-setup?token` | Auth. Backend emails link to `${APP_WEB_URL}/…`; set `APP_WEB_URL` to the admin origin for admin resets |
 | `/` | Dashboard |
-| `/clinicians`, `/clinicians/applications`, `/clinicians/applications/[id]`, `/clinicians/[id]` | Directory, review queue, detail |
+| `/clinicians`, `/clinicians/new`, `/clinicians/[id]` | Directory, invite, detail |
 | `/users` (`?role=&status=`), `/users/[id]` | Directory (Parents = preset filter) |
 | `/children`, `/children/[id]` (tabs), `/children/[id]/plans/[planId]` | Children |
 | `/plan-templates`, `/plan-templates/new`, `/plan-templates/[id]` | Templates |
@@ -270,7 +306,7 @@ Legend — **Backend:** ✅ exists · ⚠ partial · ❌ none. **Class:** **NOW*
 | ↳ recent activity | — | ❌ | FUTURE | no audit / activity endpoint |
 | ↳ system status card | — | ✅ `/health` | NOW | |
 | ↳ quick actions | — | n/a | NOW | links only |
-| **Clinicians ▸ Applications** (badge) | `/clinicians/applications` | ✅ | NOW | status filter server-side; approve / reject |
+| **Clinicians ▸ Invite** | `/clinicians/new` | ✅ (Phase 10, unreleased) | NOW | admin creates the clinician; setup email sent |
 | **Clinicians ▸ All clinicians** | `/clinicians` | ⚠ list only | NOW | client-side filter on loaded rows |
 | ↳ clinician detail | `/clinicians/[id]` | ⚠ via `GET /users/{id}` | NOW | composite |
 | ↳ suspend / reactivate | | ✅ | NOW | |
@@ -372,8 +408,8 @@ Admin UI labels may live in components (the "no copy in JSX" rule is for marketi
 
 ## 20–25. Feature plans (each screen covers Loading · Empty · Error · Success)
 
-- **Dashboard (NOW):** 6 summary cards (pending applications → queue, active clinicians, active parents, active plans, children with / without clinician → deep links), system status card (`/health`), quick actions, activity-feed placeholder. Skeleton cards; "Unable to load dashboard" with retry; zero renders as 0.
-- **Clinicians (NOW):** applications table + status filter (server) + detail; Approve (confirm; shows "setup email sent") / Reject (dialog, optional reason ≤ 2000); inline handling of `APPLICATION_DECISION_FINAL` / `EMAIL_ALREADY_REGISTERED`. Clinician list (client filter), detail via `/users/{id}` + assigned children, Suspend / Reactivate, INVITED state explained. Empty: "No pending clinician applications." / "No clinicians found."
+- **Dashboard (NOW):** 6 summary cards (invited clinicians → directory filtered to INVITED, active clinicians, active parents, active plans, children with / without clinician → deep links), system status card (`/health`), quick actions, activity-feed placeholder. Skeleton cards; "Unable to load dashboard" with retry; zero renders as 0.
+- **Clinicians (NOW):** directory (status filter, quick search) + detail; Invite clinician form; Resend invitation (INVITED only); Deactivate / Activate via suspend / reactivate; inline handling of `EMAIL_ALREADY_REGISTERED` / `CLINICIAN_EMAIL_LOCKED` / `CLINICIAN_NOT_INVITED`. Clinician list (client filter), detail via `/users/{id}` + assigned children, Suspend / Reactivate, INVITED state explained. Empty: "No pending clinician applications." / "No clinicians found."
 - **Users (NOW):** directory with role tabs + status filter (server), load more, detail (identity, status, child link / assigned children), Suspend / Reactivate with confirm (409s mapped; own account disabled).
 - **Children (NOW):** list (name, age, parent via directory hook, created); detail header + tabs — Overview, Care team (assign dialog with ACTIVE-clinician picker, revoke confirm, `CLINICIAN_ALREADY_ASSIGNED`; empty "No clinician assigned"), Plans (history + status filter → plan detail + notes), Media (grid; null `playbackUrl` states; lazy viewer), Call history.
 - **Plan templates (NOW):** list (status badge, days count), detail (days), create (RHF + zod mirroring backend: title ≤ 200, description ≤ 2000, ≥ 1 day, contiguous `dayNumber` 1..N managed by the reorder UI), Publish (explicit "cannot be undone"), Archive (terminal). No edit — UI says drafts can't be edited yet.
