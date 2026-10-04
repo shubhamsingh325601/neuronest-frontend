@@ -203,7 +203,10 @@ export function SplashScreen() {
     const hasSeen = sessionStorage.getItem("neuronest_splash_seen");
 
     if ((isPending || !hasSeen) && !prefersReducedMotion) {
-      setIsVisible(true);
+      // Mount on the next frame rather than synchronously in the effect body (avoids a cascading
+      // render). The page is hidden by `splash-pending` and shares the splash's background, so
+      // this is not visible.
+      const frame = requestAnimationFrame(() => setIsVisible(true));
 
       const maxRadius =
         Math.hypot(window.innerWidth, window.innerHeight) * 0.55 + 120;
@@ -222,6 +225,7 @@ export function SplashScreen() {
       }, REVEAL_AT_MS);
 
       return () => {
+        cancelAnimationFrame(frame);
         clearTimeout(timer);
         controls?.stop();
       };

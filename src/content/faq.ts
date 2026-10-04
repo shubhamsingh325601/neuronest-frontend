@@ -46,7 +46,7 @@ export const faqContent = {
     {
       question: "What ages is NeuroNest for?",
       answer:
-        "We're starting with children aged 2–8, when early support has the most impact — though we're listening to interest from parents of older children too.",
+        "We're starting with children aged 3–12, when early support has the most impact — though we're listening to interest from parents of older children too.",
       category: "Parents & Families",
     },
     {
