@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Inter } from "next/font/google";
+import { NONCE_HEADER } from "@/modules/admin/auth/request-headers";
 import { Providers } from "@/modules/admin/providers/providers";
 import { themeInitScript } from "@/modules/admin/theme/theme";
 import { sidebarInitScript } from "@/modules/admin/state/sidebar-pref";
@@ -17,22 +19,27 @@ const inter = Inter({
   fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
+// Every admin page is rendered per request: the CSP nonce (proxy) exists only at request time, and static HTML
+// would carry scripts the policy blocks.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "NeuroNest Admin",
   robots: { index: false, follow: false },
 };
 
-export default function AdminRootLayout({
+export default async function AdminRootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get(NONCE_HEADER) ?? undefined;
   return (
     // suppressHydrationWarning: the pre-paint script sets the `dark` class before React hydrates.
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <script dangerouslySetInnerHTML={{ __html: sidebarInitScript }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: sidebarInitScript }} />
       </head>
       <body>
         <Providers>{children}</Providers>

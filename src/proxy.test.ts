@@ -38,10 +38,20 @@ describe("proxy scope", () => {
       expect(res.headers.get("x-robots-tag")).toBe("noindex, nofollow");
       expect(res.headers.get("cache-control")).toBe("no-store");
       expect(res.headers.get("x-frame-options")).toBe("DENY");
-      expect(res.headers.get("content-security-policy")).toBe("frame-ancestors 'none'");
+      expect(res.headers.get("content-security-policy")).toContain("frame-ancestors 'none'");
       expect(res.headers.get("x-content-type-options")).toBe("nosniff");
       expect(res.headers.get("referrer-policy")).toBe("same-origin");
     }
+  });
+
+  it("gives each /admin request its own nonce and hands it to the render", () => {
+    const first = proxy(request("/admin", SESSION));
+    const second = proxy(request("/admin", SESSION));
+    const nonceOf = (res: Response) => /'nonce-([^']+)'/.exec(res.headers.get("content-security-policy") ?? "")?.[1];
+    expect(nonceOf(first)).toBeTruthy();
+    expect(nonceOf(first)).not.toBe(nonceOf(second));
+    expect(first.headers.get("x-middleware-request-x-nonce")).toBe(nonceOf(first));
+    expect(first.headers.get("x-middleware-request-content-security-policy")).toBe(first.headers.get("content-security-policy"));
   });
 
   it("serves /admin without any rewrite (the URL is the route)", () => {
