@@ -1,5 +1,6 @@
 import React from "react";
 import { SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION } from "@/lib/seo";
+import { founderContent } from "@/content/founder";
 
 export function OrganizationJsonLd() {
   const schema = {
@@ -9,6 +10,19 @@ export function OrganizationJsonLd() {
     url: SITE_URL,
     logo: `${SITE_URL}/assets/icons/logo.png`,
     description: DEFAULT_DESCRIPTION,
+    founder: {
+      "@type": "Person",
+      name: founderContent.name,
+      jobTitle: founderContent.person.jobTitle,
+      alumniOf: {
+        "@type": "CollegeOrUniversity",
+        name: founderContent.person.alumniOf,
+      },
+      memberOf: {
+        "@type": "Organization",
+        name: founderContent.person.memberOf,
+      },
+    },
     sameAs: [
       "https://www.linkedin.com/company/neuronest",
       "https://www.instagram.com/neuronest_uk",

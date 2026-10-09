@@ -5,8 +5,10 @@ import { forParentsContent } from "./for-parents";
 import { forCliniciansContent } from "./for-clinicians";
 import { faqContent } from "./faq";
 import { privacyContent } from "./privacy";
+import { founderContent } from "./founder";
 
 export {
+  founderContent,
   siteConfig,
   homeContent,
   howItWorksContent,

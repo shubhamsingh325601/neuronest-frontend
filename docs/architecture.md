@@ -38,10 +38,10 @@ src/
 ├── components/
 │   ├── ui/                     # button, badge, card, section-header, accordion, input, container
 │   ├── layout/                 # site-header, site-footer, splash-screen
-│   ├── sections/               # hero, empathy, feature-grid, how-it-works, clinicians, trust, closing, lead-forms, faq
+│   ├── sections/               # hero, empathy, feature-grid, how-it-works, founder, clinicians, trust, closing, lead-forms, faq
 │   ├── interactive/            # phone-mock, progress-ring, motion-reveal
 │   └── seo/                    # json-ld
-├── content/                    # home, for-parents, for-clinicians, how-it-works, faq, privacy, site, index (barrel)
+├── content/                    # home, founder, for-parents, for-clinicians, how-it-works, faq, privacy, site, index (barrel)
 ├── lib/                        # content (barrel), schemas, seo, theme, utils, 
 └── modules/admin/              # Admin code; must not import landing code
     ├── styles/admin.css        # Admin tokens (light/dark), @theme inline; Tailwind scan limited to admin code

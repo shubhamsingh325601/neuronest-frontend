@@ -4,7 +4,7 @@ How the frontend handles content, validation and mutations.
 
 ## Content
 
-`src/content/*.ts` is the source of truth for all marketing text, nav links, metadata and form copy (`home`, `for-parents`, `for-clinicians`, `how-it-works`, `faq`, `privacy`, `site`). `src/content/index.ts` is the barrel; `src/lib/content.ts` re-exports it so older imports keep working.
+`src/content/*.ts` is the source of truth for all marketing text, nav links, metadata and form copy (`home`, `founder`, `for-parents`, `for-clinicians`, `how-it-works`, `faq`, `privacy`, `site`). `src/content/index.ts` is the barrel; `src/lib/content.ts` re-exports it so older imports keep working.
 
 ## Validation (Zod 4)
 

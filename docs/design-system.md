@@ -56,3 +56,7 @@ The Admin app has its own, separate design system; none of the above applies to 
 - **Toasts:** import `toast` from `src/modules/admin/notifications/toast.ts`, never from `sonner` directly.
 - Colours come only from tokens (enforced by lint). Overlays use the `admin-*` keyframes defined in `admin.css`.
 - **Fonts and isolation:** the admin `next/font` Inter deliberately uses a different variable name and `fallback` from the landing's. With identical options Turbopack merged both roots' font CSS into one shared chunk, which leaked Lora/Caveat declarations into the admin page.
+
+## Founder section
+
+`src/components/sections/founder.tsx` (copy in `src/content/founder.ts`), placed between How It Works and Clinicians on a sage-tint band. The portrait is a 4:5 arch: `.founder__frame` uses `border-radius: 50% 50% R R / 40% 40% R R` (an exact semicircle top at 4:5), and `.founder__photo` is zoomed 1.25x around the face (`transform-origin: 52% 40%`) so the empty granite above the head is cropped. Role and link text use `--color-sage-deep` because `--color-coral-deep` fails AA on the sage tint. `founder.test.ts` guards against private details (email, phone, address, BPS number, placeholders) entering the content file.

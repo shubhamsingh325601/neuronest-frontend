@@ -4,6 +4,7 @@ import { Hero } from "@/components/sections/hero";
 import { Empathy } from "@/components/sections/empathy";
 import { FeatureGrid } from "@/components/sections/feature-grid";
 import { HowItWorks } from "@/components/sections/how-it-works";
+import { Founder } from "@/components/sections/founder";
 import { Clinicians } from "@/components/sections/clinicians";
 import { Trust } from "@/components/sections/trust";
 import { Closing } from "@/components/sections/closing";
@@ -19,6 +20,7 @@ export default function HomePage() {
         <Empathy />
         <FeatureGrid />
         <HowItWorks />
+        <Founder />
         <Clinicians />
         <Trust />
         <Closing />
