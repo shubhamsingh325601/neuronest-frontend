@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { parseChildTab } from "../children/child-tabs";
-import { groupDays } from "./components/plan-detail";
+import { groupDays } from "./components/group-days";
 import { formatBytes, formatDuration, playbackState } from "./media-format";
 import { mediaSchema, planDetailSchema } from "./api/types";
 

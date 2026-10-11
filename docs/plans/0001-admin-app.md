@@ -181,10 +181,11 @@ A new `EXPERT` role. **Admin creates the account directly with an email and pass
 
 ### M9 — Plan templates
 
-- [ ] List (client-side status filter) and detail (days)
-- [ ] Create builder (lazy, RHF + zod mirroring backend limits, contiguous `dayNumber`s)
-- [ ] Publish (one-way confirm) and Archive (terminal confirm)
-- [ ] Empty/loading/error states; tests
+- [x] List (client-side status filter over the loaded rows, sortable) and detail (days grouped by section); nav item live; the child's plan view links to its template
+- [x] Create builder (lazy chunk, useState + zod mirroring backend limits; `dayNumber` is the day's position, so the 1..N set is contiguous by construction). Not React Hook Form: it is not a dependency and every other admin form uses the same hand-rolled pattern. Saves a DRAFT.
+- [x] Publish (one-way confirm, DRAFT only) and Archive (terminal confirm, DRAFT or PUBLISHED)
+- [x] Empty/loading/error states; tests (`features/plan-templates/plan-templates.test.ts`, allowlist rows, mock source flag `plan-templates`)
+- [ ] Verify against a running backend. Backend notes from reading its code: `POST /plan-templates/{id}/publish` does not refuse an ARCHIVED template (it would flip it back to PUBLISHED), so only the UI prevents that; there is no edit route in Admin yet (`PUT /plan-templates/{id}/content` exists but is not allowlisted); the list has no `?status=` filter, hence the client-side filter.
 
 ### M10 — Profile, Settings, Help
 

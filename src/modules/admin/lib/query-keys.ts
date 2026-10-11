@@ -30,6 +30,13 @@ export const userKeys = {
   me: () => [...userKeys.all, "me"] as const,
 };
 
+export const planTemplateKeys = {
+  all: ["plan-templates"] as const,
+  lists: () => [...planTemplateKeys.all, "list"] as const,
+  list: () => [...planTemplateKeys.lists()] as const,
+  detail: (id: string) => [...planTemplateKeys.all, "detail", id] as const,
+};
+
 // Read-only per-child records. Kept apart from `childKeys` so changing a care team never refetches them.
 export const childRecordKeys = {
   all: ["child-records"] as const,

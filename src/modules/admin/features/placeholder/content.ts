@@ -9,47 +9,6 @@ export interface PlaceholderContent {
 }
 
 export const PLACEHOLDERS = {
-  clinicians: {
-    title: "Clinicians",
-    description: "Invite clinicians and manage the people who care for children on the platform.",
-    milestone: "M6",
-    planned: [
-      "Clinician directory with a status filter and quick search",
-      "Invite a clinician by email; resend the setup link while the invite is pending",
-      "Clinician detail with their assigned children",
-      "Deactivate and activate accounts, with confirmation",
-    ],
-  },
-  users: {
-    title: "Users",
-    description: "Parents, clinicians and administrators in one directory.",
-    milestone: "M7",
-    planned: [
-      "Role tabs (Parents, Clinicians, Admins) and a status filter",
-      "User detail with linked child or assigned children",
-      "Suspend and reactivate accounts (you cannot suspend yourself)",
-    ],
-  },
-  children: {
-    title: "Children",
-    description: "Every child profile and the team caring for them.",
-    milestone: "M8",
-    planned: [
-      "Children list with age and parent",
-      "Care team: assign and revoke clinicians",
-      "Plans, media and call history for each child (read only)",
-    ],
-  },
-  planTemplates: {
-    title: "Plan templates",
-    description: "Reusable care plans that clinicians can assign.",
-    milestone: "M9",
-    planned: [
-      "Template list with status and number of days",
-      "Template builder with day-by-day activities",
-      "Publish (cannot be undone) and archive",
-    ],
-  },
   help: {
     title: "Help",
     description: "Guides and support contacts for administrators.",

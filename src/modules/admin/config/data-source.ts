@@ -9,7 +9,7 @@
 // secret may ever be put in these. This file has no server-only or browser-only code: next.config.ts imports it
 // to refuse a production build that would ship mocks.
 
-export const ADMIN_FEATURES = ["dashboard", "system", "clinicians", "experts", "child-records"] as const;
+export const ADMIN_FEATURES = ["dashboard", "system", "clinicians", "experts", "child-records", "plan-templates"] as const;
 export type AdminFeature = (typeof ADMIN_FEATURES)[number];
 
 const FEATURE_LABELS: Record<AdminFeature, string> = {
@@ -18,6 +18,7 @@ const FEATURE_LABELS: Record<AdminFeature, string> = {
   clinicians: "Clinicians",
   experts: "Experts",
   "child-records": "Child records",
+  "plan-templates": "Plan templates",
 };
 
 export interface DataSourceEnv {

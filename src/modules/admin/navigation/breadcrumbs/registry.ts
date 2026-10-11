@@ -23,6 +23,8 @@ export const BREADCRUMB_ROUTES: RouteEntry[] = [
   { pattern: adminPath("/children"), label: "Children", parent: adminPath() },
   { pattern: adminPath("/children/:id"), label: "Child", parent: adminPath("/children") },
   { pattern: adminPath("/plan-templates"), label: "Plan templates", parent: adminPath() },
+  { pattern: adminPath("/plan-templates/new"), label: "New template", parent: adminPath("/plan-templates") },
+  { pattern: adminPath("/plan-templates/:id"), label: "Template", parent: adminPath("/plan-templates") },
   { pattern: adminPath("/system"), label: "System", parent: adminPath() },
   { pattern: adminPath("/help"), label: "Help", parent: adminPath() },
   { pattern: adminPath("/settings"), label: "Settings", parent: adminPath() },

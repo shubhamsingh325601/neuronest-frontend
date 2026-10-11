@@ -1,33 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ErrorState, LoadingState } from "../../../app-shell/states";
 import { isApiError } from "../../../lib/api-errors";
 import { describeError } from "../../../lib/describe-error";
 import { formatDate } from "../../../lib/format";
+import { ADMIN_ROUTES } from "../../../navigation/paths";
 import { Button } from "../../../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../ui/card";
 import { StatusBadge, statusLabel } from "../../../ui/status-badge";
-import type { PlanDay, PlanDetail } from "../api/types";
 import { usePlanNotesQuery, usePlanQuery } from "../hooks/use-child-records";
 import { PersonLink } from "./person-link";
-
-/** Days grouped by section (sections by position, days by number); days without a section come last. */
-export function groupDays(plan: Pick<PlanDetail, "days" | "sections">): { id: string; title: string | null; days: PlanDay[] }[] {
-  const byNumber = (a: PlanDay, b: PlanDay) => a.dayNumber - b.dayNumber;
-  const groups = [...plan.sections]
-    .sort((a, b) => a.position - b.position)
-    .map((section) => ({
-      id: section.id,
-      title: section.title as string | null,
-      days: plan.days.filter((day) => day.sectionId === section.id).sort(byNumber),
-    }))
-    .filter((group) => group.days.length > 0);
-  const known = new Set(plan.sections.map((section) => section.id));
-  const loose = plan.days.filter((day) => !day.sectionId || !known.has(day.sectionId)).sort(byNumber);
-  if (loose.length > 0) groups.push({ id: "none", title: groups.length > 0 ? "Other days" : null, days: loose });
-  return groups;
-}
+import { DayGroups } from "./day-groups";
 
 function Notes({ planId }: { planId: string }) {
   const notes = usePlanNotesQuery(planId);
@@ -95,7 +80,6 @@ export function PlanDetailView({ planId, onBack }: { planId: string; onBack: () 
   }
 
   const plan = query.data;
-  const groups = groupDays(plan);
   return (
     <div className="grid gap-4">
       {back}
@@ -111,28 +95,14 @@ export function PlanDetailView({ planId, onBack }: { planId: string; onBack: () 
                 {" "}· created by <PersonLink id={plan.createdById} />
               </>
             ) : null}
+            {" "}·{" "}
+            <Link href={`${ADMIN_ROUTES.planTemplates}/${encodeURIComponent(plan.planTemplateId)}`} className="underline underline-offset-4">
+              view its template
+            </Link>
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
-          {groups.length === 0 ? (
-            <p className="text-sm text-muted-foreground">This plan has no days.</p>
-          ) : (
-            groups.map((group) => (
-              <section key={group.id} className="grid gap-2">
-                {group.title ? <h4 className="text-sm font-semibold">{group.title}</h4> : null}
-                <ol className="divide-y rounded-xl border">
-                  {group.days.map((day) => (
-                    <li key={day.id} className="grid gap-1 px-4 py-3 text-sm">
-                      <p className="font-medium">
-                        Day {day.dayNumber}: {day.title}
-                      </p>
-                      <p className="whitespace-pre-wrap text-muted-foreground">{day.instructions}</p>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-            ))
-          )}
+          <DayGroups content={plan} />
         </CardContent>
       </Card>
       <Notes planId={plan.id} />

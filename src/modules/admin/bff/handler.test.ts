@@ -50,6 +50,9 @@ describe("isAllowed", () => {
     ["DELETE", "children/c1/clinicians/k1"],
     ["GET", "admin/summary"],
     ["POST", "plan-templates/t1/publish"],
+    ["POST", "plan-templates/t1/archive"],
+    ["GET", "plan-templates/t1"],
+    ["GET", "plan-templates"],
   ])("allows %s %s", (method, path) => expect(isAllowed(method, parts(path))).toBe(true));
 
   it.each([
@@ -67,6 +70,10 @@ describe("isAllowed", () => {
     ["GET", "plans/p1/days/1"],
     ["DELETE", "children/c1/media/m1"],
     ["POST", "children/c1/call-logs"],
+    ["PUT", "plan-templates/t1/content"], // editing and cloning templates are not part of Admin yet
+    ["POST", "plan-templates/t1/clone"],
+    ["DELETE", "plan-templates/t1"],
+    ["GET", "plan-templates/t1/publish"],
     ["POST", "children/c1/experts"], // the child page only reads its experts; changes go through PUT experts/:id/children
     ["GET", "experts/abc/reset-password"],
     ["GET", "users/abc/suspend"], // wrong method on an action route
