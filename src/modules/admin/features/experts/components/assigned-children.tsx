@@ -17,6 +17,7 @@ import { useSetExpertChildren } from "../hooks/use-experts";
 
 function failure(error: unknown): string {
   if (isApiError(error)) {
+    if (error.code === "EXPERT_NOT_ACTIVE") return "This expert is suspended, so no children can be assigned. Reactivate them first.";
     if (error.status === 404) return "The expert or one of the children could not be found. Reload and try again.";
     if (error.code === ErrorCode.RateLimited) return "Too many requests. Wait a moment and try again.";
     if (error.code === ErrorCode.BackendUnreachable) return "The NeuroNest service could not be reached. Try again shortly.";
@@ -167,7 +168,7 @@ export function AssignedChildren({ expert }: { expert: ExpertDetail }) {
     <Card className="max-w-3xl">
       <CardHeader>
         <CardTitle>Assigned children</CardTitle>
-        <CardDescription>An expert can only see and chat about the children assigned here.</CardDescription>
+        <CardDescription>An expert can only access the children assigned here.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         {assigned.length === 0 ? (

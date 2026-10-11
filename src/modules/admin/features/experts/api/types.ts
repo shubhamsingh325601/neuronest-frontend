@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { cursorPageSchema, type CursorPage } from "../../../lib/pagination";
 
-// PROVISIONAL contract: docs/api-1.json has no expert endpoints yet. This is the shape the Admin app expects
-// (docs/plans/0001-admin-app.md, "Experts"). An expert is a user with role EXPERT whom an admin creates directly
-// with a password: no invitation, no email, ACTIVE from the first moment. Status changes use the users endpoints.
+// Contract: the sibling backend repo (src/modules/experts, children/features/list-child-experts); docs/api-1.json
+// predates it. Read from that code, not yet checked against a running backend. An expert is a user with role
+// EXPERT whom an admin creates directly with a password: no invitation, no email, ACTIVE at once. Status changes
+// use the users endpoints; a new password goes through POST /experts/{id}/reset-password.
 
 export const EXPERT_STATUSES = ["ACTIVE", "SUSPENDED", "DEACTIVATED"] as const;
 export type ExpertStatus = (typeof EXPERT_STATUSES)[number];
@@ -25,7 +26,15 @@ export const expertDetailSchema = expertSchema.extend({
 });
 export type ExpertDetail = z.infer<typeof expertDetailSchema>;
 
-export const expertChildrenSchema = z.object({ childIds: z.array(z.string()) });
+/** One expert-child link (ExpertChildAssignmentDto). */
+export const expertAssignmentSchema = z.object({
+  id: z.string(),
+  expertId: z.string(),
+  childId: z.string(),
+  createdAt: z.string(),
+});
+export type ExpertAssignment = z.infer<typeof expertAssignmentSchema>;
+export const expertAssignmentListSchema = z.array(expertAssignmentSchema);
 
 export const expertStatusResultSchema = z.object({ id: z.string(), status: z.enum(EXPERT_STATUSES), updatedAt: z.string() });
 export type ExpertStatusResult = z.infer<typeof expertStatusResultSchema>;
@@ -38,11 +47,10 @@ export interface CreateExpertInput {
   password: string;
 }
 
-/** PATCH body: only changed fields. `password` replaces the current one (the admin controls it directly). */
+/** PATCH body: only changed fields. The password is not editable here; see `resetPassword`. */
 export interface UpdateExpertInput {
   name?: string;
   email?: string;
-  password?: string;
 }
 
 export type ExpertAction = "suspend" | "reactivate";
@@ -59,8 +67,15 @@ export interface ExpertApi {
   create(input: CreateExpertInput): Promise<ExpertDetail>;
   get(id: string, signal?: AbortSignal): Promise<ExpertDetail>;
   update(id: string, input: UpdateExpertInput): Promise<ExpertDetail>;
-  /** Replaces the expert's whole child set in one call. */
-  setChildren(id: string, childIds: string[]): Promise<{ childIds: string[] }>;
+  /**
+   * Sets the expert's complete child set in one transaction (max 500). 404 CHILD_NOT_FOUND for an unknown child;
+   * 409 EXPERT_NOT_ACTIVE when the expert is suspended or deactivated (clearing the set is still allowed).
+   */
+  setChildren(id: string, childIds: string[]): Promise<ExpertAssignment[]>;
+  /** The experts assigned to one child (GET /children/{id}/experts, unpaged). 404 CHILD_NOT_FOUND. */
+  forChild(childId: string, signal?: AbortSignal): Promise<ExpertAssignment[]>;
+  /** 204. The backend revokes the expert's refresh tokens. */
+  resetPassword(id: string, newPassword: string): Promise<void>;
   /** Suspend / reactivate go through the users endpoints (an expert is a user). */
   setStatus(id: string, action: ExpertAction): Promise<ExpertStatusResult>;
 }

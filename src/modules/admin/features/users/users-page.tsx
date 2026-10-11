@@ -43,7 +43,7 @@ export function UsersPage() {
 
   return (
     <div className="grid gap-6">
-      <PageHeader title="Users" description="Parents, clinicians and administrators in one directory." />
+      <PageHeader title="Users" description="Parents, clinicians, experts and administrators in one directory." />
 
       <div className="flex flex-wrap items-center gap-3">
         <div role="group" aria-label="Filter by role" className="flex gap-1 rounded-xl border p-1">

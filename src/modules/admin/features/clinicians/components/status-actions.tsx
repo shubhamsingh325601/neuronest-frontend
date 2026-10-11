@@ -56,7 +56,7 @@ export function StatusActions({ clinician }: { clinician: ClinicianDetail }) {
         <ConfirmDialog
           destructive
           title={`Suspend ${clinician.name}?`}
-          description="They are signed out everywhere and cannot sign in until you reactivate them."
+          description="They cannot sign in until you reactivate them."
           confirmLabel="Suspend"
           onConfirm={() => run("suspend")}
           trigger={

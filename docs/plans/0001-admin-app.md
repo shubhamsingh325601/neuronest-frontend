@@ -157,6 +157,7 @@ Open questions for the planning session:
 
 - [x] Children list (age from DOB, parent name via directory hook) and detail shell with tabs
 - [x] Care team tab: assign (ACTIVE-clinician picker), revoke; `CLINICIAN_ALREADY_ASSIGNED` handling
+- [x] Experts section on the child page (read-only; `GET /children/{id}/experts`)
 - [ ] Plans tab (history, status filter, plan detail + notes read-only)
 - [ ] Media tab (grid, `playbackUrl` null states, lazy viewer)
 - [ ] Call history tab (read-only)
@@ -167,19 +168,16 @@ Open questions for the planning session:
 A new `EXPERT` role. **Admin creates the account directly with an email and password: no invitation, no email, status `ACTIVE` at once.** This replaces decision 1 of backend plan 0019 (which reused the clinician invitation flow). Admin can edit name / email, set a new password, suspend / reactivate, and assign children (many in one call). Per backend plan 0019 an expert's access is read-only plus chat, so the Admin app only manages the account and the child set.
 
 - [x] Sidebar item, `/admin/experts` (search, status filter, sortable table, load more), `/admin/experts/new`, `/admin/experts/{id}`
-- [x] Create form (name, email, password with show / generate), edit form (blank password = keep), suspend / reactivate with confirm
+- [x] Create form (name, email, password with show / generate), edit form (name / email), reset password, suspend / reactivate with confirm
 - [x] Assigned children card: list with remove, multi-select picker with name filter and load more
 - [x] Users directory knows the `EXPERT` role (tab, label, link to the expert page)
-- [x] Mock source (`experts` feature), unit tests for forms and the live adapter, BFF allowlist + `PUT` support
-- [ ] **Backend to build (provisional contract; nothing exists yet, `Role` has no `EXPERT`):**
-  - `POST /experts` `{ name, email, password }` (password 10–128) → 201 `ExpertDetail`; 409 `EMAIL_ALREADY_REGISTERED`
-  - `GET /experts?status=&q=&cursor=&limit=` → `{ data: Expert[], nextCursor }`, `Expert = { id, name, email, status, createdAt }`
-  - `GET /experts/{id}` → `Expert & { lastLoginAt, assignedChildIds }`
-  - `PATCH /experts/{id}` `{ name?, email?, password? }` → `ExpertDetail` (password sets a new one directly)
-  - `PUT /experts/{id}/children` `{ childIds: uuid[] }` → `{ childIds }`; replaces the whole set in one transaction
-  - `POST /users/{id}/suspend|reactivate` must accept an expert; `GET /users` must accept `role=EXPERT`
-  - All ADMIN only. Open point: whether a password change should revoke the expert's sessions.
-- [ ] Verify against the live backend once those routes exist
+- [x] Mock source (`experts` feature), unit tests for forms and the live adapter, BFF allowlist (`PUT`, reset-password, child experts)
+- [x] Realigned with the backend repo (2026-10-11, `../neuro-nest-backend` `src/modules/experts`, commit 62001ac). The first build used a provisional contract; three things differed and are fixed:
+  - a new password is `POST /experts/{id}/reset-password` `{ newPassword }` (204, revokes the expert's refresh tokens), not a `PATCH` field: the edit form is name / email only, with a separate Reset password card
+  - `PUT /experts/{id}/children` returns the assignment rows `[{ id, expertId, childId, createdAt }]`, not `{ childIds }`; 409 `EXPERT_NOT_ACTIVE` when the expert is suspended or deactivated and the set is not empty, 404 `CHILD_NOT_FOUND`
+  - `GET /children/{id}/experts` exists (unpaged assignment rows), so the child page lists its experts without any backend change
+- [x] Child detail page shows an **Experts** section (read-only, links to each expert page). Assign / remove stays on the expert page (`PUT /experts/{id}/children`).
+- [ ] Verify against a running backend: the expert routes are read from the backend code and unit-tested at the adapter only. `GET /users?role=EXPERT` and `POST /users/{id}/suspend|reactivate` on an expert are also not checked live.
 
 ### M9 — Plan templates
 

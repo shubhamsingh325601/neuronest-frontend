@@ -1,5 +1,5 @@
 import { ErrorCode } from "@/modules/admin/lib/api-errors";
-import type { Expert, ExpertApi, ExpertDetail } from "@/modules/admin/features/experts/api/types";
+import type { Expert, ExpertApi, ExpertAssignment, ExpertDetail } from "@/modules/admin/features/experts/api/types";
 import { MOCK_LATENCY_MS, delay, mockError, paginate } from "./_factory";
 
 // TEMPORARY sample experts (plan 0001 §18). Shown only when the data-source flags select mock data for Experts.
@@ -20,6 +20,10 @@ const notFound = () => mockError(404, "EXPERT_NOT_FOUND", "Expert not found.");
 
 function detailOf(row: Expert): ExpertDetail {
   return { ...row, lastLoginAt: row.status === "ACTIVE" ? ago(1) : null, assignedChildIds: childSets.get(row.id) ?? [] };
+}
+
+function assignmentOf(expertId: string, childId: string): ExpertAssignment {
+  return { id: `${expertId}:${childId}`, expertId, childId, createdAt: ago(1) };
 }
 
 function find(id: string): Expert {
@@ -74,10 +78,23 @@ export const mockExpertApi: ExpertApi = {
 
   async setChildren(id, childIds) {
     await delay(MOCK_LATENCY_MS);
-    find(id);
+    const row = find(id);
+    if (childIds.length > 0 && row.status !== "ACTIVE") {
+      throw mockError(409, "EXPERT_NOT_ACTIVE", "This expert is suspended or deactivated and cannot be assigned children.");
+    }
     const unique = [...new Set(childIds)];
     childSets.set(id, unique);
-    return { childIds: unique };
+    return unique.map((childId) => assignmentOf(id, childId));
+  },
+
+  async forChild(childId, signal) {
+    await delay(MOCK_LATENCY_MS, signal);
+    return [...childSets].filter(([, ids]) => ids.includes(childId)).map(([expertId]) => assignmentOf(expertId, childId));
+  },
+
+  async resetPassword(id) {
+    await delay(MOCK_LATENCY_MS);
+    find(id);
   },
 
   async setStatus(id, action) {

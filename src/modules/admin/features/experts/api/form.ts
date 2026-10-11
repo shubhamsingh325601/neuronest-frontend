@@ -16,7 +16,7 @@ const email = z
   .max(EXPERT_LIMITS.email, `Email must be ${EXPERT_LIMITS.email} characters or fewer.`)
   .refine((value) => EMAIL_PATTERN.test(value), "Enter a valid email address.");
 
-const password = z
+export const passwordSchema = z
   .string()
   .min(EXPERT_LIMITS.passwordMin, `Password must be at least ${EXPERT_LIMITS.passwordMin} characters.`)
   .max(EXPERT_LIMITS.passwordMax, `Password must be ${EXPERT_LIMITS.passwordMax} characters or fewer.`);
@@ -42,7 +42,7 @@ function collect(error: z.ZodError): ExpertFieldErrors {
 export type CreateParse = { ok: true; input: CreateExpertInput } | { ok: false; errors: ExpertFieldErrors };
 
 export function parseCreateForm(values: ExpertFormValues): CreateParse {
-  const result = z.object({ name, email, password }).safeParse(values);
+  const result = z.object({ name, email, password: passwordSchema }).safeParse(values);
   return result.success ? { ok: true, input: result.data } : { ok: false, errors: collect(result.error) };
 }
 
@@ -50,15 +50,14 @@ export type EditParse =
   | { ok: true; input: UpdateExpertInput; changed: boolean }
   | { ok: false; errors: ExpertFieldErrors };
 
-/** Builds a PATCH body: only changed fields; a blank password means "keep the current one". */
-export function parseEditForm(values: ExpertFormValues, original: Pick<ExpertFormValues, "name" | "email">): EditParse {
-  const result = z.object({ name, email, password: password.or(z.literal("")) }).safeParse(values);
+/** Builds a PATCH body with only the changed name and email. */
+export function parseEditForm(values: Pick<ExpertFormValues, "name" | "email">, original: Pick<ExpertFormValues, "name" | "email">): EditParse {
+  const result = z.object({ name, email }).safeParse(values);
   if (!result.success) return { ok: false, errors: collect(result.error) };
   const next = result.data;
   const input: UpdateExpertInput = {};
   if (next.name !== original.name.trim()) input.name = next.name;
   if (next.email.toLowerCase() !== original.email.trim().toLowerCase()) input.email = next.email;
-  if (next.password) input.password = next.password;
   return { ok: true, input, changed: Object.keys(input).length > 0 };
 }
 

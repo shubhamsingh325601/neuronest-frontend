@@ -12,6 +12,7 @@ import { Button } from "../../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { formatAge } from "./age";
 import { CareTeam } from "./components/care-team";
+import { ChildExperts } from "./components/child-experts";
 import { ParentLink } from "./components/parent-link";
 import { useChildQuery } from "./hooks/use-children";
 
@@ -53,7 +54,7 @@ export function ChildDetailPage({ id }: { id: string }) {
   return (
     <div className="grid gap-6">
       <div>{back}</div>
-      <PageHeader title={child.name} description="Child profile and care team." />
+      <PageHeader title={child.name} description="Child profile, care team and experts." />
       <Card className="max-w-3xl">
         <CardHeader>
           <CardTitle>Profile</CardTitle>
@@ -76,6 +77,7 @@ export function ChildDetailPage({ id }: { id: string }) {
         </CardContent>
       </Card>
       <CareTeam childId={child.id} />
+      <ChildExperts childId={child.id} />
     </div>
   );
 }

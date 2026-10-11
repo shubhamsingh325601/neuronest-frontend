@@ -1,5 +1,5 @@
 import { apiClient } from "../../../lib/api-client";
-import { expertChildrenSchema, expertDetailSchema, expertPageSchema, expertStatusResultSchema, type ExpertApi } from "./types";
+import { expertAssignmentListSchema, expertDetailSchema, expertPageSchema, expertStatusResultSchema, type ExpertApi } from "./types";
 
 const enc = encodeURIComponent;
 
@@ -10,6 +10,11 @@ export const liveExpertApi: ExpertApi = {
   get: (id, signal) => apiClient.get(`experts/${enc(id)}`, { schema: expertDetailSchema, signal }),
   update: (id, input) => apiClient.patch(`experts/${enc(id)}`, { body: input, schema: expertDetailSchema }),
   setChildren: (id, childIds) =>
-    apiClient.put(`experts/${enc(id)}/children`, { body: { childIds }, schema: expertChildrenSchema }),
+    apiClient.put(`experts/${enc(id)}/children`, { body: { childIds }, schema: expertAssignmentListSchema }),
+  forChild: (childId, signal) =>
+    apiClient.get(`children/${enc(childId)}/experts`, { schema: expertAssignmentListSchema, signal }),
+  resetPassword: async (id, newPassword) => {
+    await apiClient.post(`experts/${enc(id)}/reset-password`, { body: { newPassword } });
+  },
   setStatus: (id, action) => apiClient.post(`users/${enc(id)}/${action}`, { schema: expertStatusResultSchema }),
 };

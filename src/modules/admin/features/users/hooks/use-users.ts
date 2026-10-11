@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DEFAULT_PAGE_SIZE, useCursorList } from "../../../lib/pagination";
-import { clinicianKeys, userKeys } from "../../../lib/query-keys";
+import { clinicianKeys, expertKeys, userKeys } from "../../../lib/query-keys";
 import { liveUserApi } from "../api/live";
 import type { UserAction, UserRole, UserStatus } from "../api/types";
 
@@ -39,6 +39,7 @@ export function useUserStatus(id: string) {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: userKeys.all }),
         queryClient.invalidateQueries({ queryKey: clinicianKeys.all }),
+        queryClient.invalidateQueries({ queryKey: expertKeys.all }),
       ]),
   });
 }

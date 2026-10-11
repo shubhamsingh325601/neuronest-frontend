@@ -37,9 +37,7 @@ export function EditForm({ expert }: { expert: ExpertDetail }) {
     update.mutate(parsed.input, {
       onSuccess: (saved) => {
         setValues({ name: saved.name, email: saved.email, password: "" });
-        toast.success("Changes saved", {
-          description: parsed.input.password ? "The new password works straight away. Pass it on to them yourself." : undefined,
-        });
+        toast.success("Changes saved");
       },
       onError: (error) => {
         const copy = describeSaveError(error);
@@ -56,10 +54,7 @@ export function EditForm({ expert }: { expert: ExpertDetail }) {
         values={values}
         errors={errors}
         onChange={set}
-        onPassword={(password) => setValues((current) => ({ ...current, password }))}
-        description="Name, sign-in email and password."
-        passwordLabel="New password"
-        passwordDescription="Leave blank to keep the current password. At least 10 characters otherwise."
+        description="Name and sign-in email. The password is changed separately, below."
       />
       <div>
         <Button type="submit" disabled={update.isPending}>

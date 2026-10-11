@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DEFAULT_PAGE_SIZE, useCursorList } from "../../../lib/pagination";
-import { expertKeys, userKeys } from "../../../lib/query-keys";
+import { childKeys, expertKeys, userKeys } from "../../../lib/query-keys";
 import { getExpertApi } from "../api";
 import type { CreateExpertInput, ExpertAction, ExpertStatus, UpdateExpertInput } from "../api/types";
 
@@ -33,7 +33,16 @@ function useRefresh() {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: expertKeys.all }),
       queryClient.invalidateQueries({ queryKey: userKeys.all }),
+      queryClient.invalidateQueries({ queryKey: childKeys.allExperts() }),
     ]);
+}
+
+/** A child's expert team (assignment rows), for the child page. */
+export function useChildExpertsQuery(childId: string) {
+  return useQuery({
+    queryKey: childKeys.experts(childId),
+    queryFn: async ({ signal }) => (await getExpertApi()).forChild(childId, signal),
+  });
 }
 
 export function useCreateExpert() {
@@ -61,6 +70,12 @@ export function useExpertStatus(id: string) {
   return useMutation({
     mutationFn: async (action: ExpertAction) => (await getExpertApi()).setStatus(id, action),
     onSuccess: refresh,
+  });
+}
+
+export function useResetExpertPassword(id: string) {
+  return useMutation({
+    mutationFn: async (newPassword: string) => (await getExpertApi()).resetPassword(id, newPassword),
   });
 }
 

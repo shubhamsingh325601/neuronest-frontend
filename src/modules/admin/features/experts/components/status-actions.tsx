@@ -37,7 +37,7 @@ export function StatusActions({ expert }: { expert: ExpertDetail }) {
       <ConfirmDialog
         destructive
         title={`Suspend ${expert.name}?`}
-        description="They are signed out and cannot sign in until you reactivate them. Their children stay assigned."
+        description="They cannot sign in until you reactivate them. Their children stay assigned, but a suspended expert cannot be given new ones."
         confirmLabel="Suspend"
         onConfirm={() => run("suspend")}
         trigger={

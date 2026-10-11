@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { generatePassword, parseCreateForm, parseEditForm } from "./form";
+import { generatePassword, parseCreateForm, parseEditForm, passwordSchema } from "./form";
 import { expertDetailSchema } from "./types";
 
 const holder = vi.hoisted(() => ({ fetchImpl: undefined as undefined | typeof fetch }));
@@ -38,25 +38,25 @@ describe("parseCreateForm", () => {
 describe("parseEditForm", () => {
   const original = { name: "Maya", email: "maya@x.org" };
 
-  it("sends only changed fields, and a blank password keeps the current one", () => {
-    expect(parseEditForm({ ...original, password: "" }, original)).toEqual({ ok: true, input: {}, changed: false });
-    expect(parseEditForm({ name: "Maya I.", email: "MAYA@x.org", password: "" }, original)).toEqual({
+  it("sends only changed fields", () => {
+    expect(parseEditForm(original, original)).toEqual({ ok: true, input: {}, changed: false });
+    expect(parseEditForm({ name: "Maya I.", email: "MAYA@x.org" }, original)).toEqual({
       ok: true,
       input: { name: "Maya I." },
       changed: true,
     });
   });
 
-  it("rejects a too-short new password", () => {
-    const result = parseEditForm({ ...original, password: "short" }, original);
-    expect(result.ok).toBe(false);
+  it("rejects an invalid email", () => {
+    expect(parseEditForm({ name: "Maya", email: "nope" }, original).ok).toBe(false);
   });
+});
 
-  it("sends a valid new password", () => {
-    expect(parseEditForm({ ...original, password: "a-long-new-password" }, original)).toMatchObject({
-      input: { password: "a-long-new-password" },
-      changed: true,
-    });
+describe("passwordSchema", () => {
+  it("enforces the backend's 10 to 128 characters", () => {
+    expect(passwordSchema.safeParse("short").success).toBe(false);
+    expect(passwordSchema.safeParse("a-long-new-password").success).toBe(true);
+    expect(passwordSchema.safeParse("x".repeat(129)).success).toBe(false);
   });
 });
 
@@ -79,10 +79,32 @@ describe("liveExpertApi", () => {
     expect(JSON.parse(String(init.body))).toEqual({ name: "Dr. Maya Iyer", email: "maya@experts.example", password: "correct-horse-battery" });
   });
 
-  it("replaces the child set with PUT", async () => {
-    const fetchImpl = vi.fn(async () => json(200, { childIds: ["c1", "c2"] }));
+  it("lists a child's experts from the child route", async () => {
+    const rows = [{ id: "a1", expertId: "e1", childId: "c1", createdAt: "2026-10-11T00:00:00.000Z" }];
+    const fetchImpl = vi.fn(async () => json(200, rows));
     holder.fetchImpl = fetchImpl;
-    await expect(liveExpertApi.setChildren("e1", ["c1", "c2"])).resolves.toEqual({ childIds: ["c1", "c2"] });
+    await expect(liveExpertApi.forChild("c1")).resolves.toEqual(rows);
+    expect(String((fetchImpl.mock.calls[0] as unknown[])[0])).toMatch(/\/children\/c1\/experts$/);
+  });
+
+  it("resets the password with newPassword and accepts the 204", async () => {
+    const fetchImpl = vi.fn(async () => new Response(null, { status: 204 }));
+    holder.fetchImpl = fetchImpl;
+    await expect(liveExpertApi.resetPassword("e1", "a-new-passphrase")).resolves.toBeUndefined();
+    const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toMatch(/\/experts\/e1\/reset-password$/);
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(String(init.body))).toEqual({ newPassword: "a-new-passphrase" });
+  });
+
+  it("sets the child set with PUT and reads the assignment rows back", async () => {
+    const rows = [
+      { id: "a1", expertId: "e1", childId: "c1", createdAt: "2026-10-11T00:00:00.000Z" },
+      { id: "a2", expertId: "e1", childId: "c2", createdAt: "2026-10-11T00:00:00.000Z" },
+    ];
+    const fetchImpl = vi.fn(async () => json(200, rows));
+    holder.fetchImpl = fetchImpl;
+    await expect(liveExpertApi.setChildren("e1", ["c1", "c2"])).resolves.toEqual(rows);
     const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toMatch(/\/experts\/e1\/children$/);
     expect(init.method).toBe("PUT");

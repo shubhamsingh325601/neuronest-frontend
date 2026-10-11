@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { StatusBadge } from "../../ui/status-badge";
 import { AssignedChildren } from "./components/assigned-children";
 import { EditForm } from "./components/edit-form";
+import { ResetPassword } from "./components/reset-password";
 import { StatusActions } from "./components/status-actions";
 import { useExpertQuery } from "./hooks/use-experts";
 
@@ -67,6 +68,7 @@ export function ExpertDetailPage({ id }: { id: string }) {
       <AssignedChildren expert={expert} />
       {/* Keyed so the form resets when the server data changes under it (saved edit). */}
       <EditForm key={`${expert.email}:${expert.name}`} expert={expert} />
+      <ResetPassword expert={expert} />
     </div>
   );
 }

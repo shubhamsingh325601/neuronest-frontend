@@ -27,7 +27,7 @@ export function describeSaveError(error: unknown): { form?: string; fields?: Exp
       case ErrorCode.InsufficientPermissions:
         return { form: "Your account is not allowed to manage experts." };
     }
-    if (error.status === 404) return { form: "The expert service is not available on this server yet." };
+    if (error.status === 404) return { form: "The expert service was not found on this server." };
   }
   return { form: "The expert could not be saved. Please try again." };
 }
@@ -83,10 +83,12 @@ export function CreateForm() {
         values={values}
         errors={errors}
         onChange={set}
-        onPassword={(password) => setValues((current) => ({ ...current, password }))}
         description="The account is active straight away. No email is sent, so pass the sign-in details on yourself."
-        passwordLabel="Password"
-        passwordDescription="At least 10 characters. You can change it later from the expert's page."
+        password={{
+          label: "Password",
+          description: "At least 10 characters. You can reset it later from the expert's page.",
+          onChange: (password) => setValues((current) => ({ ...current, password })),
+        }}
       />
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={create.isPending}>

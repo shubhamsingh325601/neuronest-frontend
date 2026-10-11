@@ -35,4 +35,6 @@ export const childKeys = {
   list: () => [...childKeys.all, "list"] as const,
   detail: (id: string) => [...childKeys.all, "detail", id] as const,
   careTeam: (id: string) => [...childKeys.all, "care-team", id] as const,
+  experts: (id: string) => [...childKeys.all, "experts", id] as const,
+  allExperts: () => [...childKeys.all, "experts"] as const,
 };

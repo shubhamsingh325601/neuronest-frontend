@@ -1,37 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { Eye, EyeOff, Wand2 } from "lucide-react";
-import { Button } from "../../../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../ui/card";
 import { Field } from "../../../ui/field";
 import { Input } from "../../../ui/input";
-import { generatePassword, type ExpertFieldErrors, type ExpertFormValues } from "../api/form";
+import { type ExpertFieldErrors, type ExpertFormValues } from "../api/form";
 import { EXPERT_LIMITS } from "../api/types";
+import { PasswordField } from "./password-field";
 
 interface ExpertFieldsProps {
   values: ExpertFormValues;
   errors: ExpertFieldErrors;
   onChange: (name: keyof ExpertFormValues) => (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onPassword: (value: string) => void;
-  passwordLabel: string;
-  passwordDescription: string;
   description: string;
+  /** Present on the add form only; the edit form leaves the password to the reset card. */
+  password?: { label: string; description: string; onChange: (value: string) => void };
   disabled?: boolean;
 }
 
-/** Account card shared by the add and edit forms. The password is shown on request so the admin can pass it on. */
-export function ExpertFields({
-  values,
-  errors,
-  onChange,
-  onPassword,
-  passwordLabel,
-  passwordDescription,
-  description,
-  disabled,
-}: ExpertFieldsProps) {
-  const [visible, setVisible] = useState(false);
+/** Account card shared by the add and edit forms. */
+export function ExpertFields({ values, errors, onChange, description, password, disabled }: ExpertFieldsProps) {
   return (
     <Card>
       <CardHeader>
@@ -45,42 +32,18 @@ export function ExpertFields({
         <Field label="Email address" error={errors.email} description="They sign in with this address.">
           <Input type="email" value={values.email} onChange={onChange("email")} autoComplete="off" maxLength={EXPERT_LIMITS.email} disabled={disabled} />
         </Field>
-        <div className="grid gap-2 sm:col-span-2">
-          <Field label={passwordLabel} error={errors.password} description={passwordDescription}>
-            <Input
-              type={visible ? "text" : "password"}
+        {password ? (
+          <div className="sm:col-span-2">
+            <PasswordField
+              label={password.label}
+              description={password.description}
               value={values.password}
-              onChange={onChange("password")}
-              autoComplete="new-password"
-              maxLength={EXPERT_LIMITS.passwordMax}
+              error={errors.password}
+              onChange={password.onChange}
               disabled={disabled}
             />
-          </Field>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setVisible((current) => !current)}
-              aria-pressed={visible}
-              disabled={disabled}
-            >
-              {visible ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />} {visible ? "Hide password" : "Show password"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setVisible(true);
-                onPassword(generatePassword());
-              }}
-              disabled={disabled}
-            >
-              <Wand2 aria-hidden="true" /> Generate one
-            </Button>
           </div>
-        </div>
+        ) : null}
       </CardContent>
     </Card>
   );

@@ -21,16 +21,19 @@ const RULES: ReadonlyArray<readonly [Method, string]> = [
   ["PATCH", "clinicians/:id"],
   ["POST", "clinicians/:id/resend-invitation"],
 
-  // Experts are admin-created accounts (no invitation). The backend contract is provisional: docs/plans/0001-admin-app.md.
+  // Experts are admin-created accounts (no invitation); routes read from the backend repo, see docs/plans/0001-admin-app.md.
   ["GET", "experts"],
   ["POST", "experts"],
   ["GET", "experts/:id"],
+  ["GET", "experts/:id/children"],
   ["PATCH", "experts/:id"],
   ["PUT", "experts/:id/children"],
+  ["POST", "experts/:id/reset-password"],
 
   ["GET", "children"],
   ["GET", "children/:id"],
   ["GET", "children/:id/clinicians"],
+  ["GET", "children/:id/experts"],
   ["POST", "children/:id/clinicians"],
   ["DELETE", "children/:id/clinicians/:id"],
   ["GET", "children/:id/plans"],
