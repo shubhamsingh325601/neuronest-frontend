@@ -9,6 +9,7 @@ import { OverlayPlaceholders } from "./overlay-placeholders";
 import { Sidebar } from "./sidebar";
 import type { NavBadges } from "./sidebar-nav";
 import { Topbar } from "./topbar";
+import { useNavBadges } from "./use-nav-badges";
 
 interface AdminShellProps {
   session: ShellSession;
@@ -17,7 +18,8 @@ interface AdminShellProps {
   children: React.ReactNode;
 }
 
-export function AdminShell({ session, mockSources, badges = {}, children }: AdminShellProps) {
+export function AdminShell({ session, mockSources, badges: overrides = {}, children }: AdminShellProps) {
+  const badges = { ...useNavBadges(), ...overrides };
   const hydrateSidebar = useUiStore((s) => s.hydrateSidebar);
   useEffect(() => hydrateSidebar(), [hydrateSidebar]);
 

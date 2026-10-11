@@ -47,7 +47,7 @@ const itemActive = "bg-sidebar-accent text-sidebar-accent-foreground";
 const activeBar =
   "before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full before:bg-primary before:content-['']";
 
-function Badge({ count, variant }: { count?: number; variant: Variant }) {
+function Badge({ count, variant, label = "pending" }: { count?: number; variant: Variant; label?: string }) {
   if (!count) return null;
   return (
     <span
@@ -56,7 +56,7 @@ function Badge({ count, variant }: { count?: number; variant: Variant }) {
         hideWhenIconOnly(variant),
       )}
     >
-      <span className="sr-only">{count} pending </span>
+      <span className="sr-only">{count} {label} </span>
       <span aria-hidden="true">{count > 99 ? "99+" : count}</span>
     </span>
   );
@@ -101,7 +101,7 @@ function NavLink({
       >
         <Icon className="size-[18px] shrink-0" aria-hidden="true" />
         <span className={cn("truncate", hideWhenIconOnly(variant))}>{item.label}</span>
-        <Badge count={count} variant={variant} />
+        <Badge count={count} variant={variant} label={item.badgeLabel} />
       </Link>
     </WithTooltip>
   );

@@ -102,3 +102,12 @@ describe("findActiveLeaf", () => {
     expect(findActiveLeaf("/admin")?.id).toBe("dashboard");
   });
 });
+
+describe("sidebar badge", () => {
+  it("is declared only on Children, for children without a clinician, with a screen-reader label", () => {
+    const badged = flattenNav().filter((leaf) => leaf.badgeKey);
+    expect(badged.map((leaf) => [leaf.id, leaf.badgeKey, leaf.badgeLabel])).toEqual([
+      ["children", "childrenWithoutClinician", "without a clinician"],
+    ]);
+  });
+});

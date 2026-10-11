@@ -30,6 +30,11 @@ export const userKeys = {
   me: () => [...userKeys.all, "me"] as const,
 };
 
+export const searchKeys = {
+  all: ["search"] as const,
+  query: (query: string) => [...searchKeys.all, query] as const,
+};
+
 export const planTemplateKeys = {
   all: ["plan-templates"] as const,
   lists: () => [...planTemplateKeys.all, "list"] as const,

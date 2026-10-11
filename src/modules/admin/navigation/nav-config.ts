@@ -15,7 +15,7 @@ import {
 // PERMANENT config (plan 0001 §18). Only each item's `status` is temporary: it flips from "placeholder"
 // to "live" in the milestone that builds the page.
 export type NavStatus = "live" | "placeholder";
-export type NavBadgeKey = "invitedClinicians";
+export type NavBadgeKey = "childrenWithoutClinician";
 
 export interface NavLeaf {
   id: string;
@@ -24,6 +24,8 @@ export interface NavLeaf {
   icon: LucideIcon;
   status: NavStatus;
   badgeKey?: NavBadgeKey;
+  /** Read by screen readers after the count, e.g. "3 without a clinician". */
+  badgeLabel?: string;
 }
 
 export interface NavParent {
@@ -56,7 +58,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: "clinicians", label: "Clinicians", href: adminPath("/clinicians"), icon: Stethoscope, status: "live" },
       { id: "experts", label: "Experts", href: adminPath("/experts"), icon: GraduationCap, status: "live" },
       { id: "users", label: "Users", href: adminPath("/users"), icon: Users, status: "live" },
-      { id: "children", label: "Children", href: adminPath("/children"), icon: Baby, status: "live" },
+      { id: "children", label: "Children", href: adminPath("/children"), icon: Baby, status: "live", badgeKey: "childrenWithoutClinician", badgeLabel: "without a clinician" },
       { id: "plan-templates", label: "Plan templates", href: adminPath("/plan-templates"), icon: ClipboardList, status: "live" },
     ],
   },

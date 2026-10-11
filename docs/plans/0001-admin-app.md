@@ -1,6 +1,6 @@
 # Plan 0001 — Admin Application
 
-> **Status: APPROVED — M0 to M4 implemented (host-based routing); **M4.5 (Admin at `/admin` on the same origin) implemented, live re-verification pending; M5 not started.** Work one milestone at a time and stop after each for review. Tick boxes as work lands: `[ ]` not started · `[x]` done.
+> **Status: APPROVED — M0 to M4 implemented (host-based routing); **M4.5 (Admin at `/admin` on the same origin) implemented, live re-verification pending; M5 partly done (search providers and the Children badge; palette and notifications not started), M6–M9 done apart from live verification.** Work one milestone at a time and stop after each for review. Tick boxes as work lands: `[ ]` not started · `[x]` done.
 > Scope: the Admin app only. Parent and Clinician apps are out of scope. The landing site must not change behaviour.
 
 ## Decision 2026-10-05 — Admin is served at `/admin`, not on an `admin.` subdomain
@@ -132,10 +132,10 @@ Open questions for the planning session:
 
 ### M5 — Search & notifications
 
-- [ ] `SearchProvider` interface; navigation + actions providers; `useAdminSearch`
+- [x] `SearchProvider` interface; navigation + actions providers; `useAdminSearch` (`src/modules/admin/search`). Navigation and actions only: the backend has no global search route (only the per-list `q` on `/clinicians` and `/experts`), so clinicians, users, experts and children are not search targets yet. Add an entity provider to `SEARCH_PROVIDERS` when a backend search endpoint exists.
 - [ ] Command palette (cmdk, lazy), ⌘/Ctrl+K and `/` shortcuts, focus restore
 - [ ] `NotificationSource` interface + mock source; bell + drawer with "sample data" label
-- [ ] Sidebar badge only if a real actionable count exists (the application queue no longer exists); otherwise drop
+- [x] Sidebar badge: Children shows `childrenWithoutClinician` from `GET /admin/summary` (the dashboard's cached query, so no paging and no extra list calls). Dropped: invited clinicians (an expected waiting state, not an action), suspended users (the summary has no such count and list endpoints are cursor-paged, so counting would mean fetching every page).
 
 ### M6 — Clinicians
 
