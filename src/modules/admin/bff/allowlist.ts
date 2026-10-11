@@ -3,7 +3,7 @@
 // (auth routes, the jobs runner, media upload and the post-v1 admin plan writes are deliberately absent).
 // Paths are relative to /v1. `:id` matches one opaque id segment. The backend still enforces ADMIN on every call.
 
-type Method = "GET" | "POST" | "PATCH" | "DELETE";
+type Method = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 
 const RULES: ReadonlyArray<readonly [Method, string]> = [
   ["GET", "health"],
@@ -20,6 +20,13 @@ const RULES: ReadonlyArray<readonly [Method, string]> = [
   ["GET", "clinicians/:id"],
   ["PATCH", "clinicians/:id"],
   ["POST", "clinicians/:id/resend-invitation"],
+
+  // Experts are admin-created accounts (no invitation). The backend contract is provisional: docs/plans/0001-admin-app.md.
+  ["GET", "experts"],
+  ["POST", "experts"],
+  ["GET", "experts/:id"],
+  ["PATCH", "experts/:id"],
+  ["PUT", "experts/:id/children"],
 
   ["GET", "children"],
   ["GET", "children/:id"],

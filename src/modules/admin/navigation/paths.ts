@@ -12,6 +12,8 @@ export const ADMIN_ROUTES = {
   home: adminPath(),
   clinicians: adminPath("/clinicians"),
   inviteClinician: adminPath("/clinicians/new"),
+  experts: adminPath("/experts"),
+  newExpert: adminPath("/experts/new"),
   users: adminPath("/users"),
   children: adminPath("/children"),
   planTemplates: adminPath("/plan-templates"),

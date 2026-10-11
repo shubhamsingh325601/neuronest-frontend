@@ -3,7 +3,7 @@ import { cursorPageSchema, type CursorPage } from "../../../lib/pagination";
 
 // Contract: docs/api-1.json (UserSummaryDto, UserDetailDto, UserStatusResponseDto, ListUsersResponseDto).
 
-export const USER_ROLES = ["PARENT", "CLINICIAN", "ADMIN"] as const;
+export const USER_ROLES = ["PARENT", "CLINICIAN", "EXPERT", "ADMIN"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
 export const USER_STATUSES = ["ACTIVE", "INVITED", "SUSPENDED", "DEACTIVATED"] as const;

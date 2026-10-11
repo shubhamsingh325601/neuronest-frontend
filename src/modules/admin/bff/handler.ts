@@ -48,7 +48,7 @@ export async function handleBackendRequest(request: Request, segments: readonly 
   try {
     backend = await backendFetch({
       path: `/v1/${segments.map(encodeURIComponent).join("/")}`,
-      method: method as "GET" | "POST" | "PATCH" | "DELETE",
+      method: method as "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
       rawBody,
       query,
       accessToken: context.accessToken,

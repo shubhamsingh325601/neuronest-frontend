@@ -66,6 +66,13 @@ export function UserDetailPage({ id }: { id: string }) {
               <dd className="font-medium">{formatDate(user.createdAt)}</dd>
             </div>
           </dl>
+          {user.role === "EXPERT" ? (
+            <p className="mt-4 text-sm">
+              <Link href={`${ADMIN_ROUTES.experts}/${encodeURIComponent(user.id)}`} className="underline underline-offset-4">
+                Open expert profile
+              </Link>
+            </p>
+          ) : null}
           {user.role === "CLINICIAN" ? (
             <p className="mt-4 text-sm">
               <Link href={`${ADMIN_ROUTES.clinicians}/${encodeURIComponent(user.id)}`} className="underline underline-offset-4">

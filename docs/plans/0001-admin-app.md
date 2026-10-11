@@ -162,6 +162,25 @@ Open questions for the planning session:
 - [ ] Call history tab (read-only)
 - [ ] Empty/loading/error states; tests
 
+### Experts (decision 2026-10-11; built between M8 and M9)
+
+A new `EXPERT` role. **Admin creates the account directly with an email and password: no invitation, no email, status `ACTIVE` at once.** This replaces decision 1 of backend plan 0019 (which reused the clinician invitation flow). Admin can edit name / email, set a new password, suspend / reactivate, and assign children (many in one call). Per backend plan 0019 an expert's access is read-only plus chat, so the Admin app only manages the account and the child set.
+
+- [x] Sidebar item, `/admin/experts` (search, status filter, sortable table, load more), `/admin/experts/new`, `/admin/experts/{id}`
+- [x] Create form (name, email, password with show / generate), edit form (blank password = keep), suspend / reactivate with confirm
+- [x] Assigned children card: list with remove, multi-select picker with name filter and load more
+- [x] Users directory knows the `EXPERT` role (tab, label, link to the expert page)
+- [x] Mock source (`experts` feature), unit tests for forms and the live adapter, BFF allowlist + `PUT` support
+- [ ] **Backend to build (provisional contract; nothing exists yet, `Role` has no `EXPERT`):**
+  - `POST /experts` `{ name, email, password }` (password 10–128) → 201 `ExpertDetail`; 409 `EMAIL_ALREADY_REGISTERED`
+  - `GET /experts?status=&q=&cursor=&limit=` → `{ data: Expert[], nextCursor }`, `Expert = { id, name, email, status, createdAt }`
+  - `GET /experts/{id}` → `Expert & { lastLoginAt, assignedChildIds }`
+  - `PATCH /experts/{id}` `{ name?, email?, password? }` → `ExpertDetail` (password sets a new one directly)
+  - `PUT /experts/{id}/children` `{ childIds: uuid[] }` → `{ childIds }`; replaces the whole set in one transaction
+  - `POST /users/{id}/suspend|reactivate` must accept an expert; `GET /users` must accept `role=EXPERT`
+  - All ADMIN only. Open point: whether a password change should revoke the expert's sessions.
+- [ ] Verify against the live backend once those routes exist
+
 ### M9 — Plan templates
 
 - [ ] List (client-side status filter) and detail (days)

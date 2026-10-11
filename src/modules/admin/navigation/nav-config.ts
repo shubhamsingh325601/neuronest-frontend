@@ -2,6 +2,7 @@ import { adminPath, isPathActive } from "./paths";
 import {
   Activity,
   Baby,
+  GraduationCap,
   ClipboardList,
   LayoutDashboard,
   LifeBuoy,
@@ -53,6 +54,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "dashboard", label: "Dashboard", href: adminPath(), icon: LayoutDashboard, status: "live" },
       { id: "clinicians", label: "Clinicians", href: adminPath("/clinicians"), icon: Stethoscope, status: "live" },
+      { id: "experts", label: "Experts", href: adminPath("/experts"), icon: GraduationCap, status: "live" },
       { id: "users", label: "Users", href: adminPath("/users"), icon: Users, status: "placeholder" },
       { id: "children", label: "Children", href: adminPath("/children"), icon: Baby, status: "placeholder" },
       { id: "plan-templates", label: "Plan templates", href: adminPath("/plan-templates"), icon: ClipboardList, status: "placeholder" },

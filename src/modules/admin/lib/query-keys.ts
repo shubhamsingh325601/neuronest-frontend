@@ -17,6 +17,12 @@ export const clinicianKeys = {
   detail: (id: string) => [...clinicianKeys.all, "detail", id] as const,
 };
 
+export const expertKeys = {
+  all: ["experts"] as const,
+  list: (filters: { status?: string; q?: string }) => [...expertKeys.all, "list", filters] as const,
+  detail: (id: string) => [...expertKeys.all, "detail", id] as const,
+};
+
 export const userKeys = {
   all: ["users"] as const,
   list: (filters: { role?: string; status?: string }) => [...userKeys.all, "list", filters] as const,

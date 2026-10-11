@@ -36,6 +36,8 @@ describe("isAllowed", () => {
     ["GET", "users/abc-123"],
     ["POST", "users/abc-123/suspend"],
     ["POST", "clinicians"],
+    ["POST", "experts"],
+    ["PUT", "experts/abc/children"],
     ["PATCH", "clinicians/abc"],
     ["DELETE", "children/c1/clinicians/k1"],
     ["GET", "admin/summary"],

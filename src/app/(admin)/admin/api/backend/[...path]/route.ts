@@ -9,4 +9,4 @@ async function handle(request: NextRequest, { params }: { params: Promise<{ path
   return handleBackendRequest(request, path, { accessToken: readSessionCookies(cookieStore).accessToken });
 }
 
-export { handle as GET, handle as POST, handle as PATCH, handle as DELETE };
+export { handle as GET, handle as POST, handle as PATCH, handle as PUT, handle as DELETE };
