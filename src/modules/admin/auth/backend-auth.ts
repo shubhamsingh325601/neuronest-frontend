@@ -38,8 +38,8 @@ export const fetchMe = (accessToken: string) =>
   createServerApi({ accessToken }).get("users/me", { schema: profileSchema });
 
 // 202 with no body for any well-formed request (the backend never reveals whether the address exists).
-export const forgotPassword = (email: string): Promise<void> =>
-  createServerApi().post<void>("auth/forgot-password", { body: { email } });
+export const forgotPassword = (email: string, callbackUrl?: string): Promise<void> =>
+  createServerApi().post<void>("auth/forgot-password", { body: { email, ...(callbackUrl ? { callbackUrl } : {}) } });
 
 export const resetPassword = (token: string, newPassword: string): Promise<void> =>
   createServerApi().post<void>("auth/reset-password", { body: { token, newPassword } });

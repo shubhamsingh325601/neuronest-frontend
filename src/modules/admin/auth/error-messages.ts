@@ -28,6 +28,8 @@ export function describeAuthError(error: ApiError, flow: "login" | "forgot" | "r
       return rateLimitedMessage(error.retryAfter);
     case ErrorCode.InvalidResetToken:
       return INVALID_RESET_LINK;
+    case ErrorCode.InvalidCallbackUrl:
+      return "This site address is not allowed by the NeuroNest service. Ask the team to add it to the allowed origins.";
     case ErrorCode.InvalidSetupToken:
       return INVALID_SETUP_LINK;
     case ErrorCode.ValidationError:

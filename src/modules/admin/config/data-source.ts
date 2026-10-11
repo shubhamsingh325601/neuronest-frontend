@@ -9,12 +9,13 @@
 // secret may ever be put in these. This file has no server-only or browser-only code: next.config.ts imports it
 // to refuse a production build that would ship mocks.
 
-export const ADMIN_FEATURES = ["dashboard", "system"] as const;
+export const ADMIN_FEATURES = ["dashboard", "system", "clinicians"] as const;
 export type AdminFeature = (typeof ADMIN_FEATURES)[number];
 
 const FEATURE_LABELS: Record<AdminFeature, string> = {
   dashboard: "Dashboard",
   system: "System",
+  clinicians: "Clinicians",
 };
 
 export interface DataSourceEnv {

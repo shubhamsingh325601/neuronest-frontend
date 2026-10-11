@@ -118,7 +118,7 @@ Plan first (a short written plan for owner review), then implement. Nothing here
 - [x] Remove `ADMIN_HOSTS`, `allowedDevOrigins` admin entry, `NEXT_PUBLIC_ADMIN_URL`; update `.env.example`
 - [x] ESLint boundaries and Tailwind `@source` lists still hold; landing-JS baseline check passes
 - [x] Unit tests rewritten (proxy matrix, gate, safe-next, paths, cookies); full quality gate green
-- [ ] Live re-verification with the dev backend: login, refresh, logout, dashboard, system, direct URL entry, `/admin` unauthenticated redirect, landing `/` unaffected
+- [x] Live re-verification with the dev backend (owner confirmed 2026-10-10: live admin dashboard works): login, refresh, logout, dashboard, system, direct URL entry, `/admin` unauthenticated redirect, landing `/` unaffected
 - [x] Docs updated in place: this plan (§2, §3, §4, §29, Verification, M0/M11 items), `AGENTS.md`, `docs/README.md`, `docs/architecture.md`, `docs/data-layer.md`, `.env.example`
 
 Open questions for the planning session:
@@ -139,24 +139,24 @@ Open questions for the planning session:
 
 ### M6 — Clinicians
 
-- [ ] Clinician directory (`GET /clinicians`, `?status=` and `?q=` once released) with load more
-- [ ] Invite clinician (`POST /clinicians`: name, email, optional profile); handle `EMAIL_ALREADY_REGISTERED`; invitation email is best-effort, so show the invite as created either way
-- [ ] Resend invitation while INVITED (`CLINICIAN_NOT_INVITED` otherwise); edit name / profile; email editable only while INVITED (`CLINICIAN_EMAIL_LOCKED`)
-- [ ] Clinician list (client-side filter) and detail (via `/users/{id}` + assigned children)
-- [ ] Suspend / reactivate with confirm
-- [ ] Empty/loading/error states; tests
+- [x] Clinician directory (`GET /clinicians`, `?status=` and `?q=`) with load more
+- [x] Invite clinician at `/admin/clinicians/new` (`POST /clinicians`: name, email, optional profile); handle `EMAIL_ALREADY_REGISTERED`; invitation email is best-effort, so show the invite as created either way
+- [x] Resend invitation while INVITED (`CLINICIAN_NOT_INVITED` otherwise); edit name / profile; email editable only while INVITED (`CLINICIAN_EMAIL_LOCKED`)
+- [x] Clinician detail at `/admin/clinicians/{id}` (`GET /clinicians/{id}`: profile, lifecycle, assigned-children count; child links arrive with M8)
+- [x] Suspend / reactivate with confirm (`POST /users/{id}/suspend|reactivate`)
+- [x] Empty/loading/error states; tests
 
 ### M7 — Users
 
-- [ ] Directory with role tabs and status filter; load more
-- [ ] User detail (child link / assigned children); suspend / reactivate; own account disabled
-- [ ] Entity-directory hook (id → name) with long `staleTime`
-- [ ] Empty/loading/error states; tests
+- [x] Directory with role tabs and status filter; load more
+- [x] User detail (child link / assigned children); suspend / reactivate; own account disabled
+- [x] Entity-directory hook (id → name) with long `staleTime`
+- [x] Empty/loading/error states; tests
 
 ### M8 — Children
 
-- [ ] Children list (age from DOB, parent name via directory hook) and detail shell with tabs
-- [ ] Care team tab: assign (ACTIVE-clinician picker), revoke; `CLINICIAN_ALREADY_ASSIGNED` handling
+- [x] Children list (age from DOB, parent name via directory hook) and detail shell with tabs
+- [x] Care team tab: assign (ACTIVE-clinician picker), revoke; `CLINICIAN_ALREADY_ASSIGNED` handling
 - [ ] Plans tab (history, status filter, plan detail + notes read-only)
 - [ ] Media tab (grid, `playbackUrl` null states, lazy viewer)
 - [ ] Call history tab (read-only)

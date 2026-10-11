@@ -13,8 +13,12 @@ interface RouteEntry {
 export const BREADCRUMB_ROUTES: RouteEntry[] = [
   { pattern: adminPath(), label: "Dashboard" },
   { pattern: adminPath("/clinicians"), label: "Clinicians", parent: adminPath() },
+  { pattern: adminPath("/clinicians/new"), label: "Invite clinician", parent: adminPath("/clinicians") },
+  { pattern: adminPath("/clinicians/:id"), label: "Clinician", parent: adminPath("/clinicians") },
   { pattern: adminPath("/users"), label: "Users", parent: adminPath() },
+  { pattern: adminPath("/users/:id"), label: "User", parent: adminPath("/users") },
   { pattern: adminPath("/children"), label: "Children", parent: adminPath() },
+  { pattern: adminPath("/children/:id"), label: "Child", parent: adminPath("/children") },
   { pattern: adminPath("/plan-templates"), label: "Plan templates", parent: adminPath() },
   { pattern: adminPath("/system"), label: "System", parent: adminPath() },
   { pattern: adminPath("/help"), label: "Help", parent: adminPath() },

@@ -22,3 +22,8 @@ export function formatCount(value: number): string {
 export function formatClockTime(timestamp: number): string {
   return new Date(timestamp).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
+
+/** Calendar date for tables, e.g. "10 Oct 2026". */
+export function formatDate(value: string | Date): string {
+  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}

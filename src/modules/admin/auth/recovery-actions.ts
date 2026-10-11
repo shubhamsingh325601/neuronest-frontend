@@ -1,6 +1,9 @@
 "use server";
 
+import { headers } from "next/headers";
 import { ApiError } from "../lib/api-errors";
+import { originFromHeaders } from "../lib/callback-url";
+import { ADMIN_ROUTES } from "../navigation/paths";
 import { completeAccountSetup, forgotPassword, resetPassword } from "./backend-auth";
 import { authFailure } from "./error-messages";
 import type { AuthFormState } from "./form-state";
@@ -17,7 +20,10 @@ export async function forgotPasswordAction(_previous: AuthFormState, formData: F
   if (!parsed.success) return { status: "error", fieldErrors: fieldErrorsFrom(parsed.error), email };
 
   try {
-    await forgotPassword(parsed.data.email);
+    // The emailed link must open the Admin reset page, not the backend's default web URL.
+    const requestHeaders = await headers();
+    const origin = originFromHeaders((name) => requestHeaders.get(name));
+    await forgotPassword(parsed.data.email, origin ? `${origin}${ADMIN_ROUTES.resetPassword}` : undefined);
   } catch (error) {
     if (error instanceof ApiError) return { ...authFailure(error, "forgot"), email };
     throw error;

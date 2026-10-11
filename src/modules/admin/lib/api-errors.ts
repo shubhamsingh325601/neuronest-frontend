@@ -13,6 +13,10 @@ export const ErrorCode = {
   InvalidResetToken: "INVALID_RESET_TOKEN",
   InvalidSetupToken: "INVALID_SETUP_TOKEN",
   ValidationError: "VALIDATION_ERROR",
+  EmailAlreadyRegistered: "EMAIL_ALREADY_REGISTERED",
+  ClinicianNotInvited: "CLINICIAN_NOT_INVITED",
+  ClinicianEmailLocked: "CLINICIAN_EMAIL_LOCKED",
+  InvalidCallbackUrl: "INVALID_CALLBACK_URL",
   // Raised by the BFF itself, never by the backend.
   BackendUnreachable: "BACKEND_UNREACHABLE",
   BadResponse: "BAD_BACKEND_RESPONSE",

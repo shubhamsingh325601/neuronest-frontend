@@ -10,3 +10,23 @@ export const systemKeys = {
   all: ["system"] as const,
   health: () => [...systemKeys.all, "health"] as const,
 };
+
+export const clinicianKeys = {
+  all: ["clinicians"] as const,
+  list: (filters: { status?: string; q?: string }) => [...clinicianKeys.all, "list", filters] as const,
+  detail: (id: string) => [...clinicianKeys.all, "detail", id] as const,
+};
+
+export const userKeys = {
+  all: ["users"] as const,
+  list: (filters: { role?: string; status?: string }) => [...userKeys.all, "list", filters] as const,
+  detail: (id: string) => [...userKeys.all, "detail", id] as const,
+  me: () => [...userKeys.all, "me"] as const,
+};
+
+export const childKeys = {
+  all: ["children"] as const,
+  list: () => [...childKeys.all, "list"] as const,
+  detail: (id: string) => [...childKeys.all, "detail", id] as const,
+  careTeam: (id: string) => [...childKeys.all, "care-team", id] as const,
+};
