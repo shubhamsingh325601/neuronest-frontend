@@ -5,7 +5,8 @@
 // - script-src: nonce + 'strict-dynamic' only. No 'unsafe-inline'. Dev adds 'unsafe-eval' (React debugging).
 // - style-src keeps 'unsafe-inline': React/Radix/sonner set `style=""` attributes, which nonces cannot cover.
 //   Inline styles cannot run script; this is the usual trade-off.
-// - Nothing third-party: fonts are self-hosted by next/font, icons are inline SVG.
+// - Nothing third-party except Cloudinary for img/media: the child Media tab plays signed playback URLs from
+//   res.cloudinary.com (backend media provider). Scripts, styles, fonts and connections stay first-party.
 
 export function createNonce(): string {
   return btoa(crypto.randomUUID());
@@ -16,7 +17,8 @@ export function buildAdminCsp(nonce: string, development = false): string {
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${development ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    "img-src 'self' data: blob: https://res.cloudinary.com",
+    "media-src 'self' https://res.cloudinary.com",
     "font-src 'self'",
     // Dev: the HMR websocket.
     `connect-src 'self'${development ? " ws: wss:" : ""}`,

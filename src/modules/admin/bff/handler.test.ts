@@ -41,6 +41,11 @@ describe("isAllowed", () => {
     ["GET", "experts/abc/children"],
     ["POST", "experts/abc/reset-password"],
     ["GET", "children/c1/experts"],
+    ["GET", "children/c1/plans"],
+    ["GET", "children/c1/media"],
+    ["GET", "children/c1/call-logs"],
+    ["GET", "plans/p1"],
+    ["GET", "plans/p1/notes"],
     ["PATCH", "clinicians/abc"],
     ["DELETE", "children/c1/clinicians/k1"],
     ["GET", "admin/summary"],
@@ -56,6 +61,12 @@ describe("isAllowed", () => {
     ["POST", "children/c1/plans"], // admin plan writes are post-v1
     ["DELETE", "users/abc"], // allowed path, wrong method
     ["PUT", "clinicians/abc"],
+    ["POST", "plans/p1/notes"], // plan records are read-only in Admin
+    ["DELETE", "plans/p1"],
+    ["PATCH", "plans/p1"],
+    ["GET", "plans/p1/days/1"],
+    ["DELETE", "children/c1/media/m1"],
+    ["POST", "children/c1/call-logs"],
     ["POST", "children/c1/experts"], // the child page only reads its experts; changes go through PUT experts/:id/children
     ["GET", "experts/abc/reset-password"],
     ["GET", "users/abc/suspend"], // wrong method on an action route

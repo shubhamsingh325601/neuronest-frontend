@@ -8,7 +8,7 @@ describe("mockFeaturesFrom", () => {
   });
 
   it("`mock` mocks every feature; a list mocks only those", () => {
-    expect(mockFeaturesFrom({ source: "mock" })).toEqual(["dashboard", "system", "clinicians", "experts"]);
+    expect(mockFeaturesFrom({ source: "mock" })).toEqual(["dashboard", "system", "clinicians", "experts", "child-records"]);
     expect(mockFeaturesFrom({ features: " system " })).toEqual(["system"]);
   });
 

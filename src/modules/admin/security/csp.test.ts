@@ -20,11 +20,15 @@ describe("buildAdminCsp", () => {
     expect(directive(csp, "connect-src")).toBe("connect-src 'self'");
   });
 
-  it("blocks framing, plugins, foreign form targets and base-tag injection; loads nothing third-party", () => {
+  it("blocks framing, plugins, foreign form targets and base-tag injection; loads nothing third-party beyond the media CDN", () => {
     for (const d of ["frame-ancestors 'none'", "object-src 'none'", "base-uri 'self'", "form-action 'self'", "default-src 'self'", "font-src 'self'"]) {
       expect(csp).toContain(d);
     }
-    expect(csp).not.toMatch(/https?:/);
+    // The only external host is the media CDN, and only for images and media (never scripts, styles or connections).
+    expect([...csp.matchAll(/https?:\/\/[^\s;]+/g)].map((m) => m[0])).toEqual(["https://res.cloudinary.com", "https://res.cloudinary.com"]);
+    expect(directive(csp, "img-src")).toContain("https://res.cloudinary.com");
+    expect(directive(csp, "media-src")).toBe("media-src 'self' https://res.cloudinary.com");
+    for (const name of ["script-src", "style-src", "connect-src", "font-src", "default-src"]) expect(directive(csp, name)).not.toMatch(/https?:/);
   });
 });
 

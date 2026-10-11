@@ -158,10 +158,10 @@ Open questions for the planning session:
 - [x] Children list (age from DOB, parent name via directory hook) and detail shell with tabs
 - [x] Care team tab: assign (ACTIVE-clinician picker), revoke; `CLINICIAN_ALREADY_ASSIGNED` handling
 - [x] Experts section on the child page (read-only; `GET /children/{id}/experts`)
-- [ ] Plans tab (history, status filter, plan detail + notes read-only)
-- [ ] Media tab (grid, `playbackUrl` null states, lazy viewer)
-- [ ] Call history tab (read-only)
-- [ ] Empty/loading/error states; tests
+- [x] Plans tab (history, server-side status filter, plan detail with days grouped by section, notes read-only with load more)
+- [x] Media tab (grid with no previews, `playbackUrl` null states, lazy viewer opened per file; CSP now allows `https://res.cloudinary.com` for `img-src` and `media-src` only)
+- [x] Call history tab (read-only, sortable)
+- [x] Empty/loading/error states; tests. Tabs live in `?tab=` and each record tab is a lazy chunk (`features/child-records`, mock flag `child-records`). Contract read from the backend repo, not yet verified against a running backend; media playback URLs in particular are unverified live.
 
 ### Experts (decision 2026-10-11; built between M8 and M9)
 
