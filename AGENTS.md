@@ -43,6 +43,7 @@ Open a doc only when the task matches its row. Do not read docs "just in case", 
 | Landing UI, design tokens, fonts, `src/components/ui` | `docs/design-system.md` |
 | `src/content`, Zod schemas, Server Actions, env vars | `docs/data-layer.md` |
 | Anything Admin (served at `/admin` on the same origin; `proxy.ts`, `src/modules/admin`, `src/mocks/admin`, admin auth) | `docs/plans/0001-admin-app.md`; URL, proxy and cookie rules in `docs/plans/0002-admin-path-routing.md` |
+| The Parent test console, `src/modules/chat-client` (streams, SSE reader, AI chat state), impersonation | `docs/plans/0003-parent-test-console.md` |
 
 Index of all docs: `docs/README.md`.
 

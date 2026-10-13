@@ -13,6 +13,8 @@ export default function nextConfig(phase: string): NextConfig {
     });
   }
 
+  const parentConsoleOn = process.env.NEXT_PUBLIC_ADMIN_PARENT_CONSOLE === "1";
+
   return {
     // Pin the data-source selectors to concrete values (default: live) so the bundler can fold the checks in
     // features/*/api/index.ts and drop the mock modules from a live build. An unset NEXT_PUBLIC_ variable is
@@ -20,6 +22,10 @@ export default function nextConfig(phase: string): NextConfig {
     env: {
       NEXT_PUBLIC_ADMIN_DATA_SOURCE: process.env.NEXT_PUBLIC_ADMIN_DATA_SOURCE || "live",
       NEXT_PUBLIC_ADMIN_MOCK_FEATURES: process.env.NEXT_PUBLIC_ADMIN_MOCK_FEATURES || "",
+      // parent-console: the temporary Parent test console (plan 0003). "1" enables it. The browser needs the backend
+      // origin, so it is derived from the existing API_BASE_URL (no second variable) and exposed only while on.
+      NEXT_PUBLIC_ADMIN_PARENT_CONSOLE: parentConsoleOn ? "1" : "",
+      NEXT_PUBLIC_ADMIN_PARENT_CONSOLE_API_URL: parentConsoleOn ? process.env.API_BASE_URL || "http://localhost:4000" : "",
     },
   };
 }

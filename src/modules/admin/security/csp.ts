@@ -12,7 +12,8 @@ export function createNonce(): string {
   return btoa(crypto.randomUUID());
 }
 
-export function buildAdminCsp(nonce: string, development = false): string {
+/** `extraConnectSrc`: origins `fetch` may reach beyond this one (parent-console: the backend origin, flag on only). */
+export function buildAdminCsp(nonce: string, development = false, extraConnectSrc: readonly string[] = []): string {
   const directives = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${development ? " 'unsafe-eval'" : ""}`,
@@ -21,7 +22,7 @@ export function buildAdminCsp(nonce: string, development = false): string {
     "media-src 'self' https://res.cloudinary.com",
     "font-src 'self'",
     // Dev: the HMR websocket.
-    `connect-src 'self'${development ? " ws: wss:" : ""}`,
+    `connect-src 'self'${extraConnectSrc.map((origin) => ` ${origin}`).join("")}${development ? " ws: wss:" : ""}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

@@ -1,0 +1,109 @@
+/*
+ * Parent test console motion (plan 0003). Built only from the admin semantic tokens (--primary, --accent,
+ * --muted, ...). The base layer in admin.css already clamps CSS animation durations under
+ * prefers-reduced-motion; the blocks below also swap the decorative effects for static equivalents.
+ * Removed together with the rest of the console.
+ */
+
+/* The assistant's avatar: still when idle, breathing while it works. */
+.pc-orb {
+  display: inline-block;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 32% 30%, var(--accent) 0%, var(--primary) 70%);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 35%, transparent);
+}
+.pc-orb[data-active="true"] {
+  animation: pc-orb-breathe 2.2s ease-in-out infinite;
+}
+.pc-orb[data-size="lg"] {
+  width: 3rem;
+  height: 3rem;
+}
+@keyframes pc-orb-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 32%, transparent);
+  }
+  50% {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 9px color-mix(in oklab, var(--primary) 0%, transparent);
+  }
+}
+
+/* A light sweeping across the label while the answer has not started. */
+.pc-shimmer {
+  background: linear-gradient(90deg, var(--muted-foreground) 0%, var(--muted-foreground) 35%, var(--foreground) 50%, var(--muted-foreground) 65%, var(--muted-foreground) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: pc-shimmer 2.4s linear infinite;
+}
+@keyframes pc-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* The soft caret at the end of text that is still arriving. */
+.pc-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.17em;
+  border-radius: 1px;
+  background: var(--primary);
+  animation: pc-caret 1.05s steps(1) infinite;
+}
+@keyframes pc-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* A freshly revealed word: fade in, rise 2px, un-blur 3px. Only the newest few words carry this class. */
+.pc-word {
+  display: inline-block;
+  white-space: pre-wrap;
+  animation: pc-word-in 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes pc-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-orb[data-active="true"] {
+    animation: none;
+    box-shadow: 0 0 0 5px color-mix(in oklab, var(--primary) 22%, transparent);
+  }
+  .pc-shimmer {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: var(--muted-foreground);
+  }
+  .pc-caret {
+    animation: none;
+  }
+  .pc-word {
+    animation: none;
+  }
+}

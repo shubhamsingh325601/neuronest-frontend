@@ -94,6 +94,14 @@ describe("describeError", () => {
     expect(describeError(err(500), "dashboard").title).toBe("Unable to load dashboard");
     expect(describeError(new Error("x"), "dashboard").title).toBe("Unable to load dashboard");
   });
+
+  it("adds the request id as a reference when the backend sent one", () => {
+    const withId = new ApiError({ status: 500, code: "INTERNAL_ERROR", requestId: "req-123" });
+    expect(describeError(withId, "experts").description).toBe("Something went wrong. Please try again. Reference: req-123");
+    const limited = new ApiError({ status: 429, code: ErrorCode.RateLimited, retryAfter: 3, requestId: "req-9" });
+    expect(describeError(limited, "x").description).toBe("Please wait 3 seconds and try again. Reference: req-9");
+    expect(describeError(err(500), "experts").description).not.toContain("Reference");
+  });
 });
 
 describe("format", () => {

@@ -3,6 +3,8 @@
 // (auth routes, the jobs runner, media upload and the post-v1 admin plan writes are deliberately absent).
 // Paths are relative to /v1. `:id` matches one opaque id segment. The backend still enforces ADMIN on every call.
 
+import { isParentConsoleEnabled } from "../features/parent-test-console/flag"; // parent-console:
+
 type Method = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 
 const RULES: ReadonlyArray<readonly [Method, string]> = [
@@ -49,14 +51,23 @@ const RULES: ReadonlyArray<readonly [Method, string]> = [
   ["POST", "plan-templates/:id/archive"],
 ];
 
+// parent-console: the one admin-token call of the temporary Parent test console, allowed only while the flag is
+// on. Its response carries a parent access token, which is why it is not in the standing list.
+const PARENT_CONSOLE_RULES: ReadonlyArray<readonly [Method, string]> = [["POST", "users/:id/impersonate"]];
+
 const ID_SEGMENT = /^[A-Za-z0-9_-]{1,64}$/;
 
-const compiled = RULES.map(([method, pattern]) => ({ method, parts: pattern.split("/") }));
+const compile = (rules: ReadonlyArray<readonly [Method, string]>) =>
+  rules.map(([method, pattern]) => ({ method, parts: pattern.split("/") }));
+
+const compiled = compile(RULES);
+const compiledParentConsole = compile(PARENT_CONSOLE_RULES);
 
 /** True when `method` + the already-split, still-encoded path segments match an allowlist rule. */
 export function isAllowed(method: string, segments: readonly string[]): boolean {
   const verb = method.toUpperCase();
-  return compiled.some(
+  const rules = isParentConsoleEnabled() ? [...compiled, ...compiledParentConsole] : compiled; // parent-console:
+  return rules.some(
     (rule) =>
       rule.method === verb &&
       rule.parts.length === segments.length &&

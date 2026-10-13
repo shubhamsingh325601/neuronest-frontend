@@ -1,8 +1,8 @@
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { BREADCRUMB_ROUTES, resolveBreadcrumbs } from "./breadcrumbs/registry";
-import { NAV_GROUPS, findActiveLeaf, flattenNav, isNavParent } from "./nav-config";
+import { BREADCRUMB_ROUTES, buildBreadcrumbRoutes, resolveBreadcrumbs } from "./breadcrumbs/registry";
+import { NAV_GROUPS, buildNavGroups, findActiveLeaf, flattenNav, isNavParent } from "./nav-config";
 import { ADMIN_BASE, adminPath, isAdminPath, isPathActive } from "./paths";
 
 const consoleDir = fileURLToPath(new URL("../../../app/(admin)/admin/(console)", import.meta.url));
@@ -109,5 +109,32 @@ describe("sidebar badge", () => {
     expect(badged.map((leaf) => [leaf.id, leaf.badgeKey, leaf.badgeLabel])).toEqual([
       ["children", "childrenWithoutClinician", "without a clinician"],
     ]);
+  });
+});
+
+// parent-console: the temporary Parent test console appears in nav and breadcrumbs only while its flag is on.
+describe("parent test console", () => {
+  it("is absent from the default nav and breadcrumbs (flag off)", () => {
+    expect(flattenNav().some((leaf) => leaf.id === "parent-test")).toBe(false);
+    expect(BREADCRUMB_ROUTES.some((route) => route.pattern === "/admin/parent-test")).toBe(false);
+    expect(resolveBreadcrumbs("/admin/parent-test")).toEqual([]);
+  });
+
+  it("is a live Operations item with a registered breadcrumb and a page when on", () => {
+    const groups = buildNavGroups(true);
+    const leaves = flattenNav(groups);
+    const leaf = leaves.find((l) => l.id === "parent-test");
+    expect(leaf).toMatchObject({ href: "/admin/parent-test", status: "live" });
+    expect(groups.find((g) => g.id === "operations")?.items.map((i) => i.id)).toEqual(["system", "parent-test"]);
+    expect(new Set(leaves.map((l) => l.href)).size).toBe(leaves.length);
+    expect(existsSync(`${consoleDir}/parent-test/page.tsx`)).toBe(true);
+    const routes = buildBreadcrumbRoutes(true);
+    expect(routes.find((r) => r.pattern === leaf?.href)).toMatchObject({ label: "Parent test", parent: "/admin" });
+  });
+
+  it("leaves the other groups untouched", () => {
+    const off = buildNavGroups(false);
+    const on = buildNavGroups(true);
+    expect(on.filter((g) => g.id !== "operations")).toEqual(off.filter((g) => g.id !== "operations"));
   });
 });

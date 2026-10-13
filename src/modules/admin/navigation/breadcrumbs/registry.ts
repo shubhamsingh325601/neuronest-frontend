@@ -1,3 +1,4 @@
+import { isParentConsoleEnabled } from "../../features/parent-test-console/flag"; // parent-console:
 import { adminPath } from "../paths";
 
 // One registry for every route (plan 0001 §11). Pages never declare their own breadcrumbs.
@@ -10,7 +11,7 @@ interface RouteEntry {
   parent?: string;
 }
 
-export const BREADCRUMB_ROUTES: RouteEntry[] = [
+const BASE_BREADCRUMB_ROUTES: RouteEntry[] = [
   { pattern: adminPath(), label: "Dashboard" },
   { pattern: adminPath("/clinicians"), label: "Clinicians", parent: adminPath() },
   { pattern: adminPath("/clinicians/new"), label: "Invite clinician", parent: adminPath("/clinicians") },
@@ -31,6 +32,15 @@ export const BREADCRUMB_ROUTES: RouteEntry[] = [
   { pattern: adminPath("/profile"), label: "Profile", parent: adminPath() },
   { pattern: adminPath("/login"), label: "Sign in" },
 ];
+
+// parent-console: registered only while the temporary Parent test console is on (plan 0003).
+export function buildBreadcrumbRoutes(parentConsole: boolean): RouteEntry[] {
+  return parentConsole
+    ? [...BASE_BREADCRUMB_ROUTES, { pattern: adminPath("/parent-test"), label: "Parent test", parent: adminPath() }]
+    : BASE_BREADCRUMB_ROUTES;
+}
+
+export const BREADCRUMB_ROUTES: RouteEntry[] = buildBreadcrumbRoutes(isParentConsoleEnabled());
 
 export interface Crumb {
   label: string;

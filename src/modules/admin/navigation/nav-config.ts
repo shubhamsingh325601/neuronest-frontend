@@ -1,7 +1,9 @@
+import { isParentConsoleEnabled } from "../features/parent-test-console/flag"; // parent-console:
 import { adminPath, isPathActive } from "./paths";
 import {
   Activity,
   Baby,
+  FlaskConical,
   GraduationCap,
   ClipboardList,
   LayoutDashboard,
@@ -49,7 +51,7 @@ export function isNavParent(item: NavItem): item is NavParent {
   return "children" in item;
 }
 
-export const NAV_GROUPS: NavGroup[] = [
+const BASE_NAV_GROUPS: NavGroup[] = [
   {
     id: "main",
     label: "Main menu",
@@ -76,6 +78,24 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
 ];
+
+// parent-console: the temporary Parent test console (plan 0003), shown under Operations only while its flag is on.
+const PARENT_CONSOLE_LEAF: NavLeaf = {
+  id: "parent-test",
+  label: "Parent test",
+  href: adminPath("/parent-test"),
+  icon: FlaskConical,
+  status: "live",
+};
+
+export function buildNavGroups(parentConsole: boolean): NavGroup[] {
+  if (!parentConsole) return BASE_NAV_GROUPS;
+  return BASE_NAV_GROUPS.map((group) =>
+    group.id === "operations" ? { ...group, items: [...group.items, PARENT_CONSOLE_LEAF] } : group,
+  );
+}
+
+export const NAV_GROUPS: NavGroup[] = buildNavGroups(isParentConsoleEnabled());
 
 /** Every navigable leaf, in display order. */
 export function flattenNav(groups: NavGroup[] = NAV_GROUPS): NavLeaf[] {

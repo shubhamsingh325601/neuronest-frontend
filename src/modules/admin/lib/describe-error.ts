@@ -10,6 +10,16 @@ export interface ErrorCopy {
  * time instead of being retried; queries do not retry it (lib/query-client.ts).
  */
 export function describeError(error: unknown, subject: string): ErrorCopy {
+  const copy = describeErrorBase(error, subject);
+  // The backend's request id (problem+json `requestId` or `X-Request-Id`) is what lets someone find the failing
+  // call in the backend logs; a bare "Something went wrong" on a 500 is otherwise untraceable.
+  if (isApiError(error) && error.requestId) {
+    return { ...copy, description: `${copy.description} Reference: ${error.requestId}` };
+  }
+  return copy;
+}
+
+function describeErrorBase(error: unknown, subject: string): ErrorCopy {
   if (isApiError(error)) {
     switch (error.code) {
       case ErrorCode.RateLimited:

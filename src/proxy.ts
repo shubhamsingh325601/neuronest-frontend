@@ -3,6 +3,7 @@ import { cookieNames } from "@/modules/admin/auth/cookie-names";
 import { decideGate } from "@/modules/admin/auth/gate";
 import { NEXT_PATH_HEADER, NONCE_HEADER } from "@/modules/admin/auth/request-headers";
 import { isAdminPath } from "@/modules/admin/navigation/paths";
+import { parentConsoleConnectSrc } from "@/modules/admin/features/parent-test-console/flag"; // parent-console:
 import { buildAdminCsp, createNonce } from "@/modules/admin/security/csp";
 
 /** Headers for every `/admin/*` response. The landing site never gets them. */
@@ -31,7 +32,7 @@ export function proxy(request: NextRequest) {
   if (!isAdminPath(pathname)) return NextResponse.next();
 
   const nonce = createNonce();
-  const csp = buildAdminCsp(nonce, process.env.NODE_ENV === "development");
+  const csp = buildAdminCsp(nonce, process.env.NODE_ENV === "development", parentConsoleConnectSrc()); // parent-console:
   const names = cookieNames(process.env.NODE_ENV === "production");
   const gate = decideGate({
     pathname,

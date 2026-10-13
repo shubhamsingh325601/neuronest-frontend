@@ -86,6 +86,30 @@ describe("isAllowed", () => {
   ])("refuses %s %s", (method, path) => expect(isAllowed(method, parts(path))).toBe(false));
 });
 
+// parent-console: impersonation mints a parent token, so it is reachable only while the console flag is on.
+describe("isAllowed: parent test console", () => {
+  it("refuses impersonation while the flag is off", () => {
+    vi.stubEnv("NEXT_PUBLIC_ADMIN_PARENT_CONSOLE", "");
+    expect(isAllowed("POST", parts("users/abc-123/impersonate"))).toBe(false);
+  });
+
+  it("allows exactly POST users/:id/impersonate while the flag is on", () => {
+    vi.stubEnv("NEXT_PUBLIC_ADMIN_PARENT_CONSOLE", "1");
+    expect(isAllowed("POST", parts("users/abc-123/impersonate"))).toBe(true);
+    expect(isAllowed("GET", parts("users/abc-123/impersonate"))).toBe(false);
+    expect(isAllowed("POST", parts("users/abc-123/impersonate/extra"))).toBe(false);
+    expect(isAllowed("POST", parts("users/../impersonate"))).toBe(false);
+    expect(isAllowed("POST", parts("auth/login"))).toBe(false);
+  });
+
+  it("leaves every standing rule unchanged when on", () => {
+    vi.stubEnv("NEXT_PUBLIC_ADMIN_PARENT_CONSOLE", "1");
+    expect(isAllowed("GET", parts("users"))).toBe(true);
+    expect(isAllowed("POST", parts("users/abc/suspend"))).toBe(true);
+    expect(isAllowed("DELETE", parts("users/abc"))).toBe(false);
+  });
+});
+
 describe("handleBackendRequest", () => {
   it("injects the bearer and forwards the query (no client IP), and never forwards cookies", async () => {
     const res = await handleBackendRequest(req("GET", "users?limit=20&role=PARENT", { headers: { cookie: "nn_at=secret" } }), ["users"], ctx);

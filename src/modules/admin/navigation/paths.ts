@@ -18,6 +18,7 @@ export const ADMIN_ROUTES = {
   children: adminPath("/children"),
   planTemplates: adminPath("/plan-templates"),
   system: adminPath("/system"),
+  parentTest: adminPath("/parent-test"), // parent-console:
   profile: adminPath("/profile"),
   settings: adminPath("/settings"),
   login: adminPath("/login"),

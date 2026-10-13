@@ -32,6 +32,24 @@ describe("buildAdminCsp", () => {
   });
 });
 
+// parent-console: the browser calls the backend directly, so connect-src gains that one origin while the flag is on.
+describe("buildAdminCsp: extra connect-src", () => {
+  it("is unchanged without extra origins", () => {
+    expect(buildAdminCsp("n", false, [])).toBe(buildAdminCsp("n"));
+  });
+
+  it("adds only the given origins to connect-src, and keeps websockets in development", () => {
+    const csp = buildAdminCsp("n", false, ["http://localhost:4000"]);
+    expect(directive(csp, "connect-src")).toBe("connect-src 'self' http://localhost:4000");
+    expect(directive(buildAdminCsp("n", true, ["https://api.example.com"]), "connect-src")).toBe(
+      "connect-src 'self' https://api.example.com ws: wss:",
+    );
+    for (const name of ["script-src", "style-src", "img-src", "media-src", "default-src"]) {
+      expect(directive(csp, name)).not.toContain("localhost:4000");
+    }
+  });
+});
+
 describe("createNonce", () => {
   it("is unique per call and header-safe", () => {
     const a = createNonce();
